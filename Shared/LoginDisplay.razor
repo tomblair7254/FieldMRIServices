@@ -1,0 +1,18 @@
+﻿@using FieldMRIServicesServices.Data
+@inject TokenProvider TokenProvider
+
+<AuthorizeView>
+    <Authorized>
+        <form action="/Identity/Account/Logout?returnUrl=%2f" method="post">
+            <button style="margin-left:200px;color:white;font-size:30px;text-decoration:none;background-color:#0d6efd;border:none;">Logout</button>
+            <input name="__RequestVerificationToken" type="hidden"
+                   value="@TokenProvider.XsrfToken" />
+        </form>
+
+    </Authorized>
+    <NotAuthorized>
+        <a style="margin-left:200px;color:white;font-size:30px;text-decoration:none;" href="Identity/Account/Login">Login</a>
+
+    </NotAuthorized>
+</AuthorizeView>
+

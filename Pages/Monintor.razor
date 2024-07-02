@@ -1,0 +1,244 @@
+﻿@page "/monitors"
+@using Syncfusion.Blazor.Buttons
+@attribute [Authorize(Roles = "Admin")]
+
+@inject IMonitorService monitorService
+@inject NavigationManager navigationManager
+@inject IJSRuntime js
+
+<h1 style="200px">Monitors</h1>
+
+<div style="max-width:1900px">
+    <SfGrid @ref="SfMonitorGrid" AllowTextWrap="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true" DataSource="monitorData" Toolbar="@toolbar">
+
+        <GridEditSettings Mode="EditMode.Normal" AllowAdding="true" AllowEditing="true" AllowDeleting="true">
+            <HeaderTemplate>
+                <span>@(GetDialogHeaderText(context as MonitorModels))</span>
+            </HeaderTemplate>
+            <FooterTemplate>
+                <SfButton OnClick="@Save" IsPrimary="true">@DialogButtonCaption</SfButton>
+                <SfButton OnClick="@Cancel">Cancel</SfButton>
+            </FooterTemplate>
+        </GridEditSettings>
+        <GridEvents OnBatchSave="OnBatchUpdateHandler" OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" TValue=" MonitorModels"></GridEvents>
+        <GridColumns>
+
+            <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(MonitorModels.Id)" Width="50px"></GridColumn>
+            <GridColumn Field="@nameof(MonitorModels.GeneralImage)" HeaderText="Image" Width="120">
+                <Template>
+                    @{
+                        var imageUrl = (context as MonitorModels).GeneralImage;
+                        <div class="image">
+                            <img style="width:50px; height:50px;" src="@imageUrl" />
+                        </div>
+                    }
+                </Template>
+                <EditTemplate>
+                    <SfUploader ID="uploadFiles" AllowedExtensions=".jpg,.png,.jpeg" Multiple="false">
+                        <UploaderEvents ValueChange="OnChange"></UploaderEvents>
+                    </SfUploader>
+                </EditTemplate>
+
+            </GridColumn>
+            <GridColumn HeaderText="Manufacturer" Field="@nameof(MonitorModels.ComputerName)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Model" Field="@nameof(MonitorModels.Model)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Qty." Field="@nameof(MonitorModels.Qty)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Serial" Field="@nameof(MonitorModels.Serial)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Location" Field="@nameof(MonitorModels.Location)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Tag" Field="@nameof(MonitorModels.Tag)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Bar Code" Field="@nameof(MonitorModels.BarCodes)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Status" Field="@nameof(MonitorModels.Status)" AllowGrouping="false" Width="150px"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+@code {
+
+    private string DialogButtonCaption { get; set; }
+
+    private SfGrid<MonitorModels> SfMonitorGrid { get; set; }
+
+    private bool VisibleProp { get; set; } = false;
+
+    private List<MonitorModels> monitorData = new();
+    public MonitorModels monitorModel = new();
+    public List<MonitorPhotoModel> photos = new();
+    public MonitorPhotoModel monitorPhotoModel = new();
+
+    public int DefaultValue = 100;
+
+    public string UploadedFile { get; set; }
+
+    private List<object> toolbar = new List<object> { "Add", "Update", "Edit", "Delete", "Cancel", "Search", "ExcelExport", "PdfExport" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        VisibleProp = true;
+
+        monitorData = await monitorService.GetMonitorAsync();
+
+        VisibleProp = false;
+    }
+
+    public void BeginHandler(ActionEventArgs<MonitorModels> Args)
+
+    {
+
+        if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save && Args.Action == "Add")
+
+        {
+
+            Args.Data.Id = DefaultValue++;    //set the default value while adding.
+
+            //save the file name / url in grid datasource. You can generate the byte and store here.
+
+            Args.Data.GeneralImage = monitorModel.GeneralImage + UploadedFile;
+
+        }
+        else if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save && Args.Action == "Edit")
+
+        {
+
+            //save the file name / url in grid datasource. You can generate the byte and store here.
+
+            Args.Data.GeneralImage = monitorModel.GeneralImage + UploadedFile;
+        }
+    }
+
+
+    public async void ActionBeginHandler(ActionEventArgs<MonitorModels> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                await monitorService.AddOrUpdateMonitorAsync(monitorModel);
+            }
+            else if (args.Action == "Edit")
+            {
+                await monitorService.UpdateMonitorModels(monitorModel);
+            }
+        }
+        else if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            bool confirm = await js.InvokeAsync<bool>("window.confirm", "Are you sure you want to really delete?");
+            if (confirm)
+            {
+                await monitorService.DeleteMonitorAsync(args.RowData.Id);
+                monitorData = (await monitorService.GetMonitorAsync()).ToList();
+                await SfMonitorGrid.Refresh();
+            }
+        }
+    }
+
+    public async void ActionCompleteHandler(ActionEventArgs<MonitorModels> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                await monitorService.UpdateMonitorModels(monitorModel);
+            }
+            else
+            {
+                if (args.Action == "Edit")
+                {
+                    await monitorService.UpdateMonitorModels(monitorModel);
+
+                }
+            }
+        }
+    }
+
+    public async void TooBarBtnClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id.Contains("_excleExport"))
+        {
+            await SfMonitorGrid.ExportToExcelAsync();
+        }
+        else if (args.Item.Id.Contains("_pdfExport"))
+        {
+            await SfMonitorGrid.ExportToPdfAsync();
+        }
+    }
+
+    private async void OnChange(UploadChangeEventArgs args)
+    {
+        try
+        {
+            foreach (var file in args.Files)
+            {
+                string format = string.Empty;
+                if (file.FileInfo.Name.ToLower().Contains("png"))
+                    format = "image/png";
+
+                if (file.FileInfo.Name.ToLower().Contains("jpg"))
+                    format = "image/jpg";
+
+                if (file.FileInfo.Name.ToLower().Contains("jpeg"))
+                    format = "image/jpeg";
+
+                var selectedFile = file.File;
+
+                await using MemoryStream fs = new MemoryStream();
+                await file.File.OpenReadStream(256000000).CopyToAsync(fs);
+                byte[] somBytes = GetBytes(fs);
+                string imageData = $"data:{format};base64,{Convert.ToBase64String(somBytes, 0, somBytes.Length)}";
+                monitorModel.GeneralImage = imageData;
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+
+
+    public static byte[] GetBytes(Stream stream)
+    {
+        var bytes = new byte[stream.Length];
+        stream.Seek(0, SeekOrigin.Begin);
+        stream.ReadAsync(bytes, 0, bytes.Length);
+        stream.Dispose();
+        return bytes;
+    }
+
+
+
+    private string GetDialogHeaderText(MonitorModels monitorModel)
+    {
+        if (monitorModel.Id == 0)
+        {
+            DialogButtonCaption = "Add";
+            return "Add Other";
+        }
+        else
+        {
+            DialogButtonCaption = "Update";
+            return $"Edit Details: {monitorModel.ComputerName} {monitorModel.GeneralImage}";
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await SfMonitorGrid.CloseEditAsync();
+    }
+    private async Task Save()
+    {
+        await SfMonitorGrid.EndEditAsync();
+    }
+
+    public async Task OnBatchUpdateHandler(BeforeBatchSaveArgs<MonitorModels> args)
+    {
+        var addedRecords = args.BatchChanges.AddedRecords;
+        var updateRecords = args.BatchChanges.ChangedRecords;
+        var deleteRecords = args.BatchChanges.DeletedRecords;
+
+        foreach (MonitorModels hard in addedRecords)
+        {
+            await monitorService.AddOrUpdateMonitorAsync(hard);
+        }
+    }
+
+}

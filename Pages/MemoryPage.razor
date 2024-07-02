@@ -1,0 +1,244 @@
+﻿@page "/memory"
+
+@attribute [Authorize(Roles = "Admin")]
+
+@inject IMemoryService memoryService
+@inject NavigationManager navigationManager
+@inject IJSRuntime js
+
+<h1 style="margin-left:200px">Memory Module</h1>
+
+<div style="max-width:1900px">
+    <SfGrid @ref="SfMemoryGrid" AllowTextWrap="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true" DataSource="memoryData" Toolbar="@toolbar">
+
+        <GridEditSettings Mode="EditMode.Normal" AllowAdding="true" AllowEditing="true" AllowDeleting="true">
+            <HeaderTemplate>
+                <span>@(GetDialogHeaderText(context as MemoryModel))</span>
+            </HeaderTemplate>
+            <FooterTemplate>
+                <SfButton OnClick="@Save" IsPrimary="true">@DialogButtonCaption</SfButton>
+                <SfButton OnClick="@Cancel">Cancel</SfButton>
+            </FooterTemplate>
+        </GridEditSettings>
+        <GridEvents OnBatchSave="OnBatchUpdateHandler" OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" TValue=" MemoryModel"></GridEvents>
+        <GridColumns>
+
+            <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(MemoryModel.Id)" Width="50px"></GridColumn>
+            <GridColumn Field="@nameof(MemoryModel.GeneralImage)" HeaderText="Image" Width="120">
+                <Template>
+                    @{
+                        var imageUrl = (context as MemoryModel).GeneralImage;
+                        <div class="image">
+                            <img style="width:50px; height:50px;" src="@imageUrl" />
+                        </div>
+                    }
+                </Template>
+                <EditTemplate>
+                    <SfUploader ID="uploadFiles" AllowedExtensions=".jpg,.png,.jpeg" Multiple="false">
+                        <UploaderEvents ValueChange="OnChange"></UploaderEvents>
+                    </SfUploader>
+                </EditTemplate>
+
+            </GridColumn>
+            <GridColumn HeaderText="Manufacturer" Field="@nameof(MemoryModel.ComputerName)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Model" Field="@nameof(MemoryModel.Model)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Qty." Field="@nameof(MemoryModel.Qunity)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Location" Field="@nameof(MemoryModel.Location)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Tag" Field="@nameof(MemoryModel.Tag)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Bar Code" Field="@nameof(MemoryModel.BarCodes)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Status" Field="@nameof(MemoryModel.Status)" AllowGrouping="false" Width="150px"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+@code {
+
+    private string DialogButtonCaption { get; set; }
+
+    private SfGrid<MemoryModel> SfMemoryGrid { get; set; }
+
+    private bool VisibleProp { get; set; } = false;
+
+    private List<MemoryModel> memoryData = new();
+    public MemoryModel memoryModel = new();
+    public List<MemoryPhotoModel> photos = new();
+    public MemoryPhotoModel memoryPhotoModel = new();
+
+    public int DefaultValue = 100;
+
+    public string UploadedFile { get; set; }
+
+    private List<object> toolbar = new List<object> { "Add", "Update", "Edit", "Delete", "Cancel", "Search", "ExcelExport", "PdfExport" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        VisibleProp = true;
+
+        memoryData = await memoryService.GetMemoryAsync();
+
+        VisibleProp = false;
+    }
+
+    public void BeginHandler(ActionEventArgs<Harddrive> Args)
+
+    {
+
+        if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save && Args.Action == "Add")
+
+        {
+
+            Args.Data.Id = DefaultValue++;    //set the default value while adding.
+
+           //save the file name / url in grid datasource. You can generate the byte and store here.
+
+            Args.Data.GeneralImage = "@memoryModel.GeneralImage" + UploadedFile;
+
+        }
+        else if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save && Args.Action == "Edit")
+
+        {
+
+            //save the file name / url in grid datasource. You can generate the byte and store here.
+
+            Args.Data.GeneralImage = "@memoryModel.GeneralImage" + UploadedFile;
+        }
+    }
+
+
+    public async void ActionBeginHandler(ActionEventArgs<MemoryModel> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                args.Data.Id = DefaultValue++;
+                await memoryService.AddOrUpdateMemoryAsync(memoryModel);
+            }
+            else if (args.Action == "Edit")
+            {
+                await memoryService.UpdateMemoryModel(memoryModel);
+            }
+        }
+        else if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            bool confirm = await js.InvokeAsync<bool>("window.confirm", "Are you sure you want to really delete?");
+            if (confirm)
+            {
+                await memoryService.DeleteMemoryAsync(args.RowData.Id);
+                memoryData = (await memoryService.GetMemoryAsync()).ToList();
+                await SfMemoryGrid.Refresh();
+            }
+        }
+    }
+
+    public async void ActionCompleteHandler(ActionEventArgs<MemoryModel> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                await   memoryService.AddOrUpdateMemoryAsync(memoryModel);
+            }
+            else
+            {
+                if (args.Action == "Edit")
+                {
+                    await memoryService.UpdateMemoryModel(memoryModel);
+
+                }
+            }
+        }
+    }
+
+    public async void TooBarBtnClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id.Contains("_excleExport"))
+        {
+            await SfMemoryGrid.ExportToExcelAsync();
+        }
+        else if (args.Item.Id.Contains("_pdfExport"))
+        {
+            await SfMemoryGrid.ExportToPdfAsync();
+        }
+    }
+
+    private async void OnChange(UploadChangeEventArgs args)
+    {
+        try
+        {
+            foreach (var file in args.Files)
+            {
+                string format = string.Empty;
+                if (file.FileInfo.Name.ToLower().Contains("png"))
+                    format = "image/png";
+
+                if (file.FileInfo.Name.ToLower().Contains("jpg"))
+                    format = "image/jpg";
+
+                if (file.FileInfo.Name.ToLower().Contains("jpeg"))
+                    format = "image/jpeg";
+
+                var selectedFile = file.File;
+
+                await using MemoryStream fs = new MemoryStream();
+                await file.File.OpenReadStream(256000000).CopyToAsync(fs);
+                byte[] somBytes = GetBytes(fs);
+                string imageData = $"data:{format};base64,{Convert.ToBase64String(somBytes, 0, somBytes.Length)}";
+                memoryModel.GeneralImage = imageData;
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+
+
+    public static byte[] GetBytes(Stream stream)
+    {
+        var bytes = new byte[stream.Length];
+        stream.Seek(0, SeekOrigin.Begin);
+        stream.ReadAsync(bytes, 0, bytes.Length);
+        stream.Dispose();
+        return bytes;
+    }
+
+
+
+    private string GetDialogHeaderText(MemoryModel memoryModel)
+    {
+        if (memoryModel.Id == 0)
+        {
+            DialogButtonCaption = "Add";
+            return "Add Other";
+        }
+        else
+        {
+            DialogButtonCaption = "Update";
+            return $"Edit Details: {memoryModel.ComputerName} {memoryModel.Model}";
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await SfMemoryGrid.CloseEditAsync();
+    }
+    private async Task Save()
+    {
+        await SfMemoryGrid.EndEditAsync();
+    }
+
+    public async Task OnBatchUpdateHandler(BeforeBatchSaveArgs<MemoryModel> args)
+    {
+        var addedRecords = args.BatchChanges.AddedRecords;
+        var updateRecords = args.BatchChanges.ChangedRecords;
+        var deleteRecords = args.BatchChanges.DeletedRecords;
+
+        foreach (MemoryModel hard in addedRecords)
+        {
+            await memoryService.AddOrUpdateMemoryAsync(hard);
+        }
+    }
+
+}

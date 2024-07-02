@@ -1,0 +1,244 @@
+﻿@page "/hard"
+@using Syncfusion.Blazor.Buttons
+
+@attribute [Authorize(Roles = "Admin")]
+
+@inject IHarddriveService harddriveService
+@inject NavigationManager navigationManager
+@inject IJSRuntime js
+
+<h1 style="text-align:200px;"></h1>
+<div style="max-width:1900px">
+    <SfGrid @ref="SfHarddriveGrid" AllowTextWrap="true" AllowExcelExport="true" AllowPdfExport="true" AllowSorting="true" DataSource="hardData" Toolbar="@toolbar">
+
+        <GridEditSettings Mode="EditMode.Normal" AllowAdding="true" AllowEditing="true" AllowDeleting="true">
+            <HeaderTemplate>
+                <span>@(GetDialogHeaderText(context as HarddriveModel))</span>
+            </HeaderTemplate>
+            <FooterTemplate>
+                <SfButton OnClick="@Save" IsPrimary="true">@DialogButtonCaption</SfButton>
+                <SfButton OnClick="@Cancel">Cancel</SfButton>
+            </FooterTemplate>
+        </GridEditSettings>
+        <GridEvents OnBatchSave="OnBatchUpdateHandler" OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" TValue=" HarddriveModel"></GridEvents>
+        <GridColumns>
+
+            <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(HarddriveModel.Id)" Width="50px"></GridColumn>
+            <GridColumn Field="@nameof(HarddriveModel.GeneralImage)" HeaderText="Image" Width="120">
+                <Template>
+                    @{
+                        var imageUrl = (context as HarddriveModel).GeneralImage;
+                        <div class="image">
+                            <img style="width:50px; height:50px;" src="@imageUrl" />
+                        </div>
+                    }
+                </Template>
+                <EditTemplate>
+                    <SfUploader ID="uploadFiles" AllowedExtensions=".jpg,.png,.jpeg" Multiple="false">
+                        <UploaderEvents ValueChange="OnChange"></UploaderEvents>
+                    </SfUploader>
+                </EditTemplate>
+
+            </GridColumn>
+            <GridColumn HeaderText="Manufacturer" Field="@nameof(HarddriveModel.ComputerName)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Model" Field="@nameof(HarddriveModel.Model)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Qty." Field="@nameof(HarddriveModel.Qty)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Serial" Field="@nameof(HarddriveModel.Serial)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Location" Field="@nameof(HarddriveModel.Location)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Tag" Field="@nameof(HarddriveModel.Tag)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Bar Code" Field="@nameof(HarddriveModel.BarCodes)" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Status" Field="@nameof(HarddriveModel.Status)" AllowGrouping="false" Width="150px"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+@code {
+
+    private string DialogButtonCaption { get; set; }
+
+    private SfGrid<HarddriveModel> SfHarddriveGrid { get; set; }
+
+    private bool VisibleProp { get; set; } = false;
+
+    private List<HarddriveModel> hardData = new();
+    public HarddriveModel hardModel = new();
+    public List<HarddrivePhotoModel> photos = new();
+    public HarddrivePhotoModel hardPhotoModel = new();
+
+    public int DefaultValue = 100;
+
+    public string UploadedFile { get; set; }
+
+    private List<object> toolbar = new List<object> { "Add", "Update", "Edit", "Delete", "Cancel", "Search", "ExcelExport", "PdfExport" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        VisibleProp = true;
+
+        hardData = await harddriveService.GetHarddriveAsync();
+
+        VisibleProp = false;
+    }
+
+    public void BeginHandler(ActionEventArgs<HarddriveModel> Args)
+
+    {
+
+        if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save && Args.Action == "Add")
+
+        {
+
+            Args.Data.Id = DefaultValue++;    //set the default value while adding.
+
+            //save the file name / url in grid datasource. You can generate the byte and store here.
+
+            Args.Data.GeneralImage = hardModel.GeneralImage + UploadedFile;
+
+        }
+        else if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save && Args.Action == "Edit")
+
+        {
+
+            //save the file name / url in grid datasource. You can generate the byte and store here.
+
+            Args.Data.GeneralImage = hardModel.GeneralImage + UploadedFile;
+        }
+    }
+
+
+    public async void ActionBeginHandler(ActionEventArgs<HarddriveModel> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                await harddriveService.AddOrUpdateHarddriveAsync(hardModel);
+            }
+            else if (args.Action == "Edit")
+            {
+                await harddriveService.UpdateHarddirveModel(hardModel);
+            }
+        }
+        else if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            bool confirm = await js.InvokeAsync<bool>("window.confirm", "Are you sure you want to really delete?");
+            if (confirm)
+            {
+                await harddriveService.DeleteHarddriveAsync(args.RowData.Id);
+                hardData = (await harddriveService.GetHarddriveAsync()).ToList();
+                await SfHarddriveGrid.Refresh();
+            }
+        }
+    }
+
+    public async void ActionCompleteHandler(ActionEventArgs<HarddriveModel> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                await harddriveService.AddOrUpdateHarddriveAsync(hardModel);
+            }
+            else
+            {
+                if (args.Action == "Edit")
+                {
+                    await harddriveService.UpdateHarddirveModel(hardModel);
+
+                }
+            }
+        }
+    }
+
+    public async void TooBarBtnClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id.Contains("_excleExport"))
+        {
+            await SfHarddriveGrid.ExportToExcelAsync();
+        }
+        else if (args.Item.Id.Contains("_pdfExport"))
+        {
+            await SfHarddriveGrid.ExportToPdfAsync();
+        }
+    }
+
+    private async void OnChange(UploadChangeEventArgs args)
+    {
+        try
+        {
+            foreach (var file in args.Files)
+            {
+                string format = string.Empty;
+                if (file.FileInfo.Name.ToLower().Contains("png"))
+                    format = "image/png";
+
+                if (file.FileInfo.Name.ToLower().Contains("jpg"))
+                    format = "image/jpg";
+
+                if (file.FileInfo.Name.ToLower().Contains("jpeg"))
+                    format = "image/jpeg";
+
+                var selectedFile = file.File;
+
+                await using MemoryStream fs = new MemoryStream();
+                await file.File.OpenReadStream(256000000).CopyToAsync(fs);
+                byte[] somBytes = GetBytes(fs);
+                string imageData = $"data:{format};base64,{Convert.ToBase64String(somBytes, 0, somBytes.Length)}";
+                hardModel.GeneralImage = imageData;
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+
+
+    public static byte[] GetBytes(Stream stream)
+    {
+        var bytes = new byte[stream.Length];
+        stream.Seek(0, SeekOrigin.Begin);
+        stream.ReadAsync(bytes, 0, bytes.Length);
+        stream.Dispose();
+        return bytes;
+    }
+
+
+
+    private string GetDialogHeaderText(HarddriveModel hardModel)
+    {
+        if (hardModel.Id == 0)
+        {
+            DialogButtonCaption = "Add";
+            return "Add Other";
+        }
+        else
+        {
+            DialogButtonCaption = "Update";
+            return $"Edit Details: {hardModel.ComputerName} {hardModel.Model}";
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await SfHarddriveGrid.CloseEditAsync();
+    }
+    private async Task Save()
+    {
+        await SfHarddriveGrid.EndEditAsync();
+    }
+
+    public async Task OnBatchUpdateHandler(BeforeBatchSaveArgs<HarddriveModel> args)
+    {
+        var addedRecords = args.BatchChanges.AddedRecords;
+        var updateRecords = args.BatchChanges.ChangedRecords;
+        var deleteRecords = args.BatchChanges.DeletedRecords;
+
+        foreach (HarddriveModel hard in addedRecords)
+        {
+            await harddriveService.AddOrUpdateHarddriveAsync(hard);
+        }
+    }
+
+}

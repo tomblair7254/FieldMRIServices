@@ -1,0 +1,39 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.SplitButtons
+@inject NavigationManager NavigationManager
+
+<SfAppBar ColorMode="AppBarColor.Primary" style="width:1540px" >
+    <label style="font-size:30px;margin-right:40px;width:238px">Field MRI Services</label>
+    <SfButton style="font-size:30px;" CssClass="e-inherit" IconCss="e-icons e-home" Content="Home"
+              OnClick="@(() => NavigateToPage("/"))" />
+    <SfButton style="font-size:30px;" CssClass="e-inherit" IconCss="e-icons e-notes" Content="Inventory"
+              OnClick="@(() => NavigateToPage("/Inventory"))" />
+    <SfButton style="font-size:30px;" CssClass="e-inherit" IconCss="e-icons e-notes" Content="User Inventory"
+              OnClick="@(() => NavigateToPage("/UserInventory"))" />
+    <SfDropDownButton IconCss="chevron-right-small" Content="Computer Item" style="background-color:#0d6efd; width:258px;font-size:30px">
+        <DropDownMenuItems>
+            <DropDownMenuItem Text="Computers" Url="/computer"></DropDownMenuItem>
+            <DropDownMenuItem Text="MO Disk" Url="/modisk"></DropDownMenuItem>
+            <DropDownMenuItem Text="Hard Drives"Url="/hard" ></DropDownMenuItem>
+            <DropDownMenuItem Text="Video Cards" Url="/videopage"></DropDownMenuItem>
+            <DropDownMenuItem Text="Memory" Url="/memory"></DropDownMenuItem>
+            <DropDownMenuItem Text="Monitors" Url="/monitors"></DropDownMenuItem>
+            <DropDownMenuItem Text="IEEE" Url="/ieee"></DropDownMenuItem>
+            <DropDownMenuItem Text="DVD" Url="/dvdpage"></DropDownMenuItem>
+            <DropDownMenuItem Text="SCSI Cards" Url="/scsi cards"></DropDownMenuItem>
+            <DropDownMenuItem Text="SAS Raid" Url="/sas raid"></DropDownMenuItem>
+            <DropDownMenuItem Text="Mulitiple Comm" Url="/mulitiplecomm"></DropDownMenuItem>
+            <DropDownMenuItem Text="Other" Url="/other"></DropDownMenuItem>
+        </DropDownMenuItems>
+    </SfDropDownButton>
+ <LoginDisplay/>
+
+</SfAppBar>
+
+@code {
+    void NavigateToPage(string page)
+    {
+        NavigationManager.NavigateTo(page);
+    }
+}
