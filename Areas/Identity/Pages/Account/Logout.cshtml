@@ -1,0 +1,26 @@
+﻿@page
+@model FieldMRIServicesServices.Areas.Identity.Pages.Account.LogoutModel
+@inject FieldMRIServicesServices.Data.TokenProvider TokenProvider
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Logout</title>
+    <script>
+        // Clear the local storage flag
+        localStorage.removeItem('loginToastShown');
+    </script>
+</head>
+<body>
+    <form id="logoutForm" method="post">
+        <input type="hidden" name="__RequestVerificationToken" value="@TokenProvider.XsrfToken" />
+    </form>
+    <script>
+        document.getElementById('logoutForm').submit();
+    </script>
+</body>
+</html>

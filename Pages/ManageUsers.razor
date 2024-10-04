@@ -1,0 +1,302 @@
+@page "/UserManagement/ManageUsers"
+@attribute [Authorize]
+
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Popups
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject UserManager<IdentityUser> UserManager
+@inject RoleManager<ApplicationRoles> RoleManager
+@inject IJSRuntime JS
+
+<div>
+    <h3 class="text-center text-4xl font-excon">Manage Users</h3>
+
+    <AddUser @ref="addUser" />
+
+    <div class="flex flex-col space-y-6 justify-center m-0 py-6">
+        <SfGrid DataSource="@users" AllowSorting="true" AllowFiltering="true" AllowPaging="true" GridLines="GridLine.Both" AllowResizing="true" Toolbar="@(new List<string> { "Search" })">
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+            <GridPageSettings PageSize="5"></GridPageSettings>
+            <GridColumns>
+                <GridColumn Field="UserName" HeaderText="Username" Width="150"></GridColumn>
+                <GridColumn Field="Email" HeaderText="Email" Width="150"></GridColumn>
+                <GridColumn HeaderText="Password" Width="150">
+                    <Template Context="context">
+                        <SfTextBox @bind-Value="selectedPasswords[(context as IdentityUser).Id]"
+                            Type="InputType.Password" Placeholder="Enter password" />
+                    </Template>
+                </GridColumn>
+                <GridColumn HeaderText="Role" Width="150">
+                    <Template Context="context">
+                        @{
+                            var user = context as IdentityUser;
+                            var userRoles = UserManager.GetRolesAsync(user).Result.ToList();
+                            string selectedRole = userRoles.FirstOrDefault(); 
+                            // Assuming you want to pre-select the first role
+                            if (!selectedRoles.ContainsKey(user.Id))
+                            {
+                                selectedRoles[user.Id] = selectedRole;
+                            }
+                        }
+                        <SfDropDownList TItem="string" TValue="string" @bind-Value="selectedRoles[user.Id]"
+                            DataSource="@allRoles" Placeholder="Select role"
+                            Change="@(EventCallback.Factory.Create<Microsoft.AspNetCore.Components.ChangeEventArgs>(this, args => OnRoleChange(args, user)))">
+                            <DropDownListFieldSettings Text="." Value="." />
+                        </SfDropDownList>
+                    </Template>
+                </GridColumn>
+                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+                    <Template>
+                        <button
+                            class="font-medium py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                            @onclick="@(EventCallback.Factory.Create<MouseEventArgs>(this, args => ConfirmUpdateUserRoles(context as IdentityUser, selectedRoles[(context as IdentityUser).Id], selectedPasswords[(context as IdentityUser).Id])))">
+                            Update
+                        </button>
+                        <button
+                            class="font-medium py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                            @onclick="@(EventCallback.Factory.Create<MouseEventArgs>(this, args => ShowDeleteConfirmation((context as IdentityUser).Id)))">
+                            Delete
+                        </button>
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
+    </div>
+
+    <SfDialog @bind-Visible="isDeleteDialogVisible" Width="300px" IsModal="true" ShowCloseIcon="true"
+        Header="Confirm Delete">
+        <DialogContent>
+            <div class="mb-6 font-alpino text-lg">Are you sure you want to delete the user: <span
+                    class="font-semibold">@userToUpdate.UserName</span>
+                ?</div>
+        </DialogContent>
+        <DialogFooter>
+            <div class="flex gap-4">
+                <button class="font-medium font-excon py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                    @onclick="@DeleteUser">
+                    Yes
+                </button>
+                <button class="font-medium font-excon py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    @onclick="@CancelDelete">
+                    No
+                </button>
+            </div>
+        </DialogFooter>
+    </SfDialog>
+
+    <SfDialog @bind-Visible="isUpdateDialogVisible" Width="400px" IsModal="true" ShowCloseIcon="true"
+        Header="Confirm Update">
+        <DialogContent>
+            <div class="mb-6 font-alpino text-lg">
+                @if (!isRoleChanged && !isPasswordChanged)
+                {
+                    <span>Nothing to update.</span>
+                }
+                else
+                {
+                    <span>You are about to update <span class="font-semibold">@userToUpdate.UserName</span> 's</span>
+                    @if (isRoleChanged && isPasswordChanged)
+                    {
+                        <span> &nbsp;role from <span class="font-semibold">@currentRole</span> to <span
+                                class="font-semibold">@selectedRoles[userToUpdate.Id]</span> and password.</span>
+                    }
+                    else if (isRoleChanged)
+                    {
+                        <span> &nbsp;role from <span class="font-semibold">@currentRole</span> to <span
+                                class="font-semibold">@selectedRoles[userToUpdate.Id]</span>.</span>
+                    }
+                    else if (isPasswordChanged)
+                    {
+                        <span>password.</span>
+                    }
+                    <span> &nbsp;Continue?</span>
+                }
+            </div>
+            @if (passwordErrors.Any())
+            {
+                <div class="text-red-500">
+                    <ul>
+                        @foreach (var error in passwordErrors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </DialogContent>
+        @if (isRoleChanged || isPasswordChanged)
+        {
+            <DialogFooter>
+                <div class="flex gap-4">
+                    <button class="font-medium font-excon py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        @onclick="@UpdateUserRoles">
+                        Yes
+                    </button>
+                    <button class="font-medium font-excon py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                        @onclick="@CancelUpdateUserRoles">
+                        No
+                    </button>
+                </div>
+            </DialogFooter>
+        }
+    </SfDialog>
+</div>
+
+@code {
+    private List<IdentityUser> users = new List<IdentityUser>();
+    private List<string> allRoles = new List<string>();
+    private Dictionary<string, string> selectedRoles = new Dictionary<string, string>();
+    private Dictionary<string, string> selectedPasswords = new Dictionary<string, string>();
+    private bool isDeleteDialogVisible = false;
+    private bool isUpdateDialogVisible = false;
+    private bool isAddUserDialogVisible = false;
+    private IdentityUser userToUpdate;
+    private string currentRole;
+    private IdentityUser newUser = new IdentityUser();
+    private string newUserPassword;
+    private string newUserRole;
+    private bool isRoleChanged = false;
+    private bool isPasswordChanged = false;
+    private string searchQuery = string.Empty;
+
+    private AddUser addUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+        allRoles = RoleManager.Roles.Select(r => r.Name).ToList();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("setPageTitle", "Manage Users");
+        }
+    }
+
+    private async Task LoadUsers()
+    {
+        users = UserManager.Users.ToList();
+        selectedRoles.Clear();
+        selectedPasswords.Clear();
+        foreach (var user in users)
+        {
+            var userRoles = await UserManager.GetRolesAsync(user);
+            selectedRoles[user.Id] = userRoles.FirstOrDefault();
+            selectedPasswords[user.Id] = string.Empty; // Initialize with empty password
+        }
+    }
+
+    private void ShowDeleteConfirmation(string userId)
+    {
+        userToUpdate = users.FirstOrDefault(u => u.Id == userId);
+        isDeleteDialogVisible = true;
+    }
+
+    private async Task DeleteUser()
+    {
+        if (userToUpdate != null)
+        {
+            await UserManager.DeleteAsync(userToUpdate);
+            users.Remove(userToUpdate);
+            selectedRoles.Remove(userToUpdate.Id);
+            selectedPasswords.Remove(userToUpdate.Id);
+            isDeleteDialogVisible = false;
+        }
+    }
+
+    private void CancelDelete()
+    {
+        isDeleteDialogVisible = false;
+    }
+
+    private void ConfirmUpdateUserRoles(IdentityUser user, string selectedRole, string selectedPassword)
+    {
+        userToUpdate = user;
+        currentRole = UserManager.GetRolesAsync(userToUpdate).Result.FirstOrDefault();
+        isRoleChanged = selectedRoles[userToUpdate.Id] != currentRole;
+        isPasswordChanged = !string.IsNullOrEmpty(selectedPassword);
+        isUpdateDialogVisible = true;
+    }
+
+    private List<string> passwordErrors = new List<string>();
+
+    private async Task UpdateUserRoles()
+    {
+        passwordErrors.Clear(); // Clear previous errors
+
+        if (userToUpdate != null)
+        {
+            if (isRoleChanged)
+            {
+                if (!string.IsNullOrEmpty(currentRole))
+                {
+                    await UserManager.RemoveFromRoleAsync(userToUpdate, currentRole);
+                }
+                if (!string.IsNullOrEmpty(selectedRoles[userToUpdate.Id]))
+                {
+                    await UserManager.AddToRoleAsync(userToUpdate, selectedRoles[userToUpdate.Id]);
+                }
+            }
+
+            if (isPasswordChanged)
+            {
+                var token = await UserManager.GeneratePasswordResetTokenAsync(userToUpdate);
+                var resetResult = await UserManager.ResetPasswordAsync(userToUpdate, token, selectedPasswords[userToUpdate.Id]);
+
+                if (!resetResult.Succeeded)
+                {
+                    foreach (var error in resetResult.Errors)
+                    {
+                        passwordErrors.Add(error.Description);
+                    }
+                    return; // Exit if password reset failed
+                }
+            }
+
+            await LoadUsers();
+            isUpdateDialogVisible = false;
+        }
+    }
+
+    private void CancelUpdateUserRoles()
+    {
+        isUpdateDialogVisible = false;
+    }
+
+    private async Task OnRoleChange(Microsoft.AspNetCore.Components.ChangeEventArgs args, IdentityUser user)
+    {
+        selectedRoles[user.Id] = args.Value.ToString();
+    }
+
+    private void ShowAddUserDialog()
+    {
+        newUser = new IdentityUser();
+        newUserPassword = string.Empty;
+        newUserRole = string.Empty;
+        isAddUserDialogVisible = true;
+    }
+
+    private void CancelAddUser()
+    {
+        isAddUserDialogVisible = false;
+    }
+
+    private async Task AddUser()
+    {
+        var result = await UserManager.CreateAsync(newUser, newUserPassword);
+        if (result.Succeeded && !string.IsNullOrEmpty(newUserRole))
+        {
+            await UserManager.AddToRoleAsync(newUser, newUserRole);
+            users.Add(newUser);
+            selectedRoles[newUser.Id] = newUserRole;
+            selectedPasswords[newUser.Id] = string.Empty;
+            isAddUserDialogVisible = false;
+        }
+    }
+}

@@ -1,0 +1,1111 @@
+﻿@page "/ComputerInventory"
+@attribute [Authorize]
+
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Notifications
+@using System.Net
+@using Microsoft.AspNetCore.Identity
+@using System.IO
+@using SixLabors.ImageSharp;
+@using SixLabors.ImageSharp.Formats.Webp;
+@using SixLabors.ImageSharp.Processing;
+@using System.Security.Claims
+
+@inject NavigationManager NavigationManager
+@inject IComputerService ComputerService
+@inject IUserLogsService UserLogsService
+@inject UserManager<IdentityUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject RoleManager<ApplicationRoles> RoleManager
+@inject IJSRuntime JS
+
+<div>
+    <h3 class="text-center text-4xl font-excon">Computer Inventory</h3>
+
+    <div class="flex flex-col justify-center m-0 py-12">
+        <SfGrid @ref="SfComputerGrid" ID="SfComputerGrid" DataSource="computerData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader ="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true"  AllowMultiSorting="true" Toolbar="@toolbar">
+            <GridEditSettings Mode="EditMode.Normal" AllowAdding="true" ShowDeleteConfirmDialog="true" AllowEditing="true" AllowDeleting="true">
+                <HeaderTemplate>
+                    <span>@(GetDialogHeaderText(context as ComputerModel))</span>
+                </HeaderTemplate>
+
+                <FooterTemplate>
+                    <SfButton OnClick="@Save" IsPrimary="true">Save</SfButton>
+                    <SfButton OnClick="@Cancel">Cancel</SfButton>
+                </FooterTemplate>
+            </GridEditSettings>
+
+            <GridSortSettings>
+                <GridSortColumns>
+                    <GridSortColumn Field="@nameof(ComputerModel.Id)" Direction="SortDirection.Descending"></GridSortColumn>
+                </GridSortColumns>
+            </GridSortSettings>
+
+            <GridEvents OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" TValue="ComputerModel" QueryCellInfo="CustomizeCell" RowDataBound="CustomizeRow" RowSelected="OnRowSelected"></GridEvents>
+
+            <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+            
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+
+            <GridPageSettings PageSize="10"></GridPageSettings>
+
+            <GridColumns>
+                <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(ComputerModel.Id)" Width="50px" AllowFiltering="false">
+                </GridColumn>
+
+                <GridColumn Field="@nameof(ComputerModel.Images)" HeaderText="IMAGE" Width="230px" AllowFiltering="false">
+                    <Template>
+                        @{
+                            var ComputerModel = context as ComputerModel;
+                            var imageUrls = ComputerModel?.Images?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                        }
+                        <div class="flex space-x-4">
+                            @if (imageUrls.Length == 0)
+                            {
+                                <span class="font-alpino text-base font-light">No Images Have been Uploaded.</span>
+                            }
+                            else
+                            {
+                                @foreach (var imageUrl in imageUrls)
+                                {
+                                    <div class="image">
+                                        <img class="w-12 h-12" src="@imageUrl" alt=""/>
+                                    </div>
+                                }
+                                <button @onclick="() => OpenCarousel(imageUrls)" class=""><i class="fa-solid fa-expand text-indigo-600 text-md hover:scale-110 ease-in transition-all duration-300"></i></button>
+                            }
+                        </div>
+                    </Template>
+
+                    <EditTemplate>
+                        <div class="flex flex-col py-4 space-y-4">
+                            @{
+                                var ComputerModel = context as ComputerModel;
+                                var imageUrls = ComputerModel?.Images?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                            }
+                            <div class="flex justify-center items-center space-x-4">
+                                @if (imageUrls.Length > 0)
+                                {
+                                    @foreach (var imageUrl in imageUrls)
+                                    {
+                                        <div class="flex flex-col justify-center items-center space-y-2">
+                                            <img class="w-12 h-12" alt="product-image" src="@imageUrl" />
+                                            <button type="button" @onclick="@(async () => await RemoveImage(imageUrl, ComputerModel))">
+                                                <i class="fa-solid fa-xmark text-blue-500 text-lg hover:scale-105 ease-in transition-all duration-300"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                }else
+                                {
+                                    <p>No images uploaded</p>
+                                }
+                            </div>
+                            @if (imageUrls.Length >= 3)
+                            {
+                                <p class="text-xs flex flex-wrap text-red-500">You can only upload up to 3 images. <br> Please delete existing images before <br> adding new ones.</p>
+                            }
+                            else
+                            {
+                                <SfUploader ID="uploadFiles" AllowedExtensions=".jpg,.png,.jpeg" Multiple="false" MaxFileSize="10485760" @ref="Uploader">
+                                    <UploaderEvents ValueChange="@(args => CloudinaryImageUpload(args, ComputerModel))"></UploaderEvents>
+                                </SfUploader>
+                                <p class="text-xs font-alpino font-light text-gray-500">Max file size: 10MB</p>
+                            }
+                        </div>
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Manufacturer & Description" Field="@nameof(ComputerModel.ComputerNameFirstPart)" Width="320px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.ComputerNameFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedComputerNameColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Quantity" Field="@nameof(ComputerModel.QtyFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.QtyFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedQtyColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="PN, SN, MODEL, ITEM #" Field="@nameof(ComputerModel.PinFirstPart)" Width="220px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.PinFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedPinColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.VideoFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedVideoColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Network" Field="@nameof(ComputerModel.NetworkFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.NetworkFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedNetworkColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Memory" Field="@nameof(ComputerModel.MemoryFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.MemoryFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedMemoryColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Player" Field="@nameof(ComputerModel.PlayerFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.PlayerFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedPlayerColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Hard Drive" Field="@nameof(ComputerModel.HardDriveFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.HardDriveFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedHardDriveColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="TAG" Field="@nameof(ComputerModel.TagFirstPart)" Width="150px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag colour" DataSource="@colour" @bind-Value="computer.SelectedTagColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag scope" DataSource="@scope" @bind-Value="computer.SelectedTagScope">
+                                    <DropDownListFieldSettings Value="scope" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Fiber" Field="@nameof(ComputerModel.FiberFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.FiberFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedFiberColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="IEEE" Field="@nameof(ComputerModel.IEEEFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.IEEEFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedIEEEColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="SAS Raid" Field="@nameof(ComputerModel.SASRaidFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.SASRaidFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedSASRaidColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="SCSI" Field="@nameof(ComputerModel.SCSIFirstPart)" Width="320px">
+    <EditTemplate Context="context">
+        @if (context is ComputerModel computer)
+        {
+            <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.SCSIFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedSCSIColour">
+                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+            </div>
+        }
+    </EditTemplate>
+</GridColumn>
+
+                <GridColumn HeaderText="Bar Codes" Field="@nameof(ComputerModel.BarCodesFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.BarCodesFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedBarCodesColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Status / Notes" Field="@nameof(ComputerModel.StatusFirstPart)" Width="500px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.StatusFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell Colour" DataSource="@colour" @bind-Value="computer.SelectedStatusColour">
+                                    <DropDownListFieldSettings Value="colour" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
+    </div>
+
+    <SfToast ID="InventoryToast" @ref="ToastObj" Timeout="2000">
+        <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+        <ToastAnimation Show="SlideBottomIn" Hide="SlideRightOut"></ToastAnimation>
+    </SfToast>
+</div>
+
+@code {
+    int Count { get; set; } = 0;
+    private string DialogButtonCaption { get; set; }
+    private SfUploader Uploader;
+    private string[] carouselImages = Array.Empty<string>();
+    private SfGrid<ComputerModel> SfComputerGrid { get; set; }
+    private bool VisibleProp { get; set; } = false;
+    private List<ComputerModel> computerData = new();
+    public ComputerModel ComputerModel = new();
+    private List<string> toolbar = new List<string>();
+    private List<string> colour = new List<string> { "Yellow", "Green", "Red", "Orange", "Blue", "Cyan", "Magenta", "None" };
+    private List<string> scope = new List<string> { "Row", "Cell" };
+    private int deleteId;
+    private List<string> imageUrls = new List<string>();
+    private List<string> tempImagePaths = new List<string>();
+    private bool isImageUploading = false;
+    private ApplicationRoles permissions = new ApplicationRoles();
+    private bool hasDeletingAccessPermission;
+    private bool hasEditingAccessPermission;
+    private bool hasViewingAccessPermission;
+    private bool hasFullAccessPermission;
+    private bool hasAddingAccessPermission;
+    private ComputerModel selectedComputerInventoryModel;
+    private List<ComputerModel> selectedRecords = new List<ComputerModel>();
+
+    private async void OnRowSelected(RowSelectEventArgs<ComputerModel> args)
+    {
+        selectedComputerInventoryModel = args.Data;
+        selectedRecords = await SfComputerGrid.GetSelectedRecordsAsync();
+        //Console.WriteLine($"Selected Computer Model: {selectedComputerInventoryModel}");
+    }
+
+    private async Task DuplicateRecord(ComputerModel selectedComputerInventory)
+    {
+        if (selectedComputerInventory == null)
+        {
+            return;
+        }
+        
+        string userId = await GetCurrentUserIdAsync();
+        string userName = await GetCurrentUserNameAsync();
+
+        var result = await ComputerService.DuplicateComputerAsync(selectedComputerInventory.Id);
+        if (result == (int)HttpStatusCode.OK)
+        {
+            await ShowToast($"Record Duplicated Successfully.", "success");
+
+            string crudOperationMessage = $"Record Duplicated in Computer Inventory";
+            await UserLogsService.LogActivityAsync(new UserLogsModel
+            {
+                UserId = userId,
+                UserName = userName,
+                CrudOperation = crudOperationMessage,
+            });
+
+            computerData = await ComputerService.GetComputerAsync();
+            await SfComputerGrid.Refresh();
+            //Console.WriteLine("Grid Refreshed");
+        }
+        else
+        {
+            await ShowToast($"Failed to Duplicate Record.", "error");
+        }
+    }
+
+    private async Task<string> GetCurrentUserIdAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    private async Task<string> GetCurrentUserNameAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.Identity.Name;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        computerData = (await ComputerService.GetComputerAsync()).ToList();
+        foreach (var item in computerData)
+        {
+            item.ParseTag();
+            item.ParseProperties(); // Parse other properties as well
+        }
+        await LoadPermissions();
+        SetupToolbar();
+
+        VisibleProp = true;
+        
+        //Console.WriteLine("computer data loaded: " + computerData.Count + " items.");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("setPageTitle", "Computer Inventory");
+        }
+    }
+
+    private void SetupToolbar()
+    {
+        toolbar.Clear();
+        if (hasAddingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Add");
+            toolbar.Add("Duplicate"); // Add the Duplicate button to the toolbar
+        }
+        if (hasEditingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Edit");
+            if (!isImageUploading)
+            {
+                toolbar.Add("Update");
+            }
+        }
+        if (hasDeletingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Delete");
+        }
+        if (hasAddingAccessPermission || hasEditingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Cancel");
+        }
+        toolbar.Add("Search");
+        toolbar.Add("ExcelExport");
+        toolbar.Add("PdfExport");
+    }
+
+    private void UpdateTag(ComputerModel computer)
+    {
+        computer.UpdateTag();
+    }
+
+    public void CustomizeCell(QueryCellInfoEventArgs<ComputerModel> args)
+    {
+        if (args?.Data == null || args.Column == null)
+        {
+            return;
+        }
+
+        void ApplyCellStyle(string selectedColour)
+        {
+            if (string.IsNullOrEmpty(selectedColour) || selectedColour == "none")
+            {
+                return;
+            }
+
+            //Console.WriteLine($"Applying color {selectedColour} to cell");
+
+            switch (selectedColour)
+            {
+                case "Yellow":
+                    args.Cell.AddClass(new string[] { "colour-yellow" });
+                    break;
+                case "Green":
+                    args.Cell.AddClass(new string[] { "colour-green" });
+                    break;
+                case "Red":
+                    args.Cell.AddClass(new string[] { "colour-red" });
+                    break;
+                case "Orange":
+                    args.Cell.AddClass(new string[] { "colour-orange" });
+                    break;
+                case "Blue":
+                    args.Cell.AddClass(new string[] { "colour-blue" });
+                    break;
+                case "Cyan":
+                    args.Cell.AddClass(new string[] { "colour-cyan" });
+                    break;
+                case "Magenta":
+                    args.Cell.AddClass(new string[] { "colour-magenta" });
+                    break;
+            }
+            // Debugging: Print a message indicating the color was applied
+        // Console.WriteLine($"Color {selectedColour} applied to cell.");
+        }
+
+        if (args.Column.Field == nameof(ComputerModel.TagFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedTagColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.ComputerNameFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedComputerNameColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.QtyFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedQtyColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.PinFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedPinColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.HardDriveFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedHardDriveColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.MemoryFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedMemoryColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.PlayerFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedPlayerColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.NetworkFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedNetworkColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.SASRaidFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedSASRaidColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.BarCodesFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedBarCodesColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.StatusFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedStatusColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.VideoFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedVideoColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.FiberFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedFiberColour);
+        }
+        else if (args.Column.Field == nameof(ComputerModel.IEEEFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedIEEEColour);
+        }
+    }
+
+    public void CustomizeRow(RowDataBoundEventArgs<ComputerModel> args)
+    {
+        if (args?.Data == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(args.Data.SelectedTagScope) || args.Data.SelectedTagScope == "none")
+        {
+            return;
+        }
+
+        if (args.Data.SelectedTagScope == "Row")
+        {
+            if (string.IsNullOrEmpty(args.Data.SelectedTagColour) || args.Data.SelectedTagColour == "none")
+            {
+                return;
+            }
+
+            switch (args.Data.SelectedTagColour)
+            {
+                case "Yellow":
+                    args.Row.AddClass(new string[] { "colour-yellow" });
+                    break;
+                case "Green":
+                    args.Row.AddClass(new string[] { "colour-green" });
+                    break;
+                case "Red":
+                    args.Row.AddClass(new string[] { "colour-red" });
+                    break;
+                case "Orange":
+                    args.Row.AddClass(new string[] { "colour-orange" });
+                    break;
+                case "Blue":
+                    args.Row.AddClass(new string[] { "colour-blue" });
+                    break;
+                case "Cyan":
+                    args.Row.AddClass(new string[] { "colour-cyan" });
+                    break;
+                case "Magenta":
+                    args.Row.AddClass(new string[] { "colour-magenta" });
+                    break;
+            }
+        }
+    }
+
+    private async Task LoadPermissions()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var identityUser = await UserManager.GetUserAsync(user);
+            var roles = await UserManager.GetRolesAsync(identityUser);
+            var permissions = await GetPermissionsFromRoles(roles);
+
+            //Console.WriteLine($"User: {identityUser.UserName}, Permissions: {string.Join(", ", permissions)}");
+
+            hasFullAccessPermission = permissions.Contains("Full Access");
+            hasEditingAccessPermission = permissions.Contains("Computer Edit");
+            hasAddingAccessPermission = permissions.Contains("Computer Add");
+            hasDeletingAccessPermission = permissions.Contains("Computer Delete");
+            hasViewingAccessPermission = permissions.Contains("Computer View");
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task<List<string>> GetPermissionsFromRoles(IList<string> roles)
+    {
+        var permissions = new List<string>();
+        foreach (var role in roles)
+        {
+            var applicationRole = await RoleManager.FindByNameAsync(role);
+            if (applicationRole != null)
+            {
+                permissions.AddRange(applicationRole.Permissions);
+            }
+        }
+        return permissions.Distinct().ToList();
+    }
+
+    private SfToast ToastObj;
+    private List<ToastModel> ToastModels { get; set; } = new List<ToastModel>();
+
+    private async Task ShowToast(string message, string type)
+    {
+        var toastModel = new ToastModel
+        {
+            Content = message,
+            Icon = "e-layers"
+        };
+        ToastModels.Add(toastModel);
+        await ToastObj.ShowAsync(toastModel);
+    }
+
+    public async Task ActionBeginHandler(ActionEventArgs<ComputerModel> args)
+    {
+        try
+        {
+            string action = string.Empty;
+            string userId = await GetCurrentUserIdAsync();
+            string userName = await GetCurrentUserNameAsync();
+
+            if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+            {
+                if (args.Action == "Add" || args.Action == "Edit")
+                {
+                    List<string> finalImagePaths = new List<string>();
+
+                    if (!string.IsNullOrEmpty(args.Data.Images))
+                    {
+                        finalImagePaths.AddRange(args.Data.Images.Split(','));
+                    }
+
+                    // Ensure only three images are stored
+                    int imagesToUpload = Math.Min(tempImagePaths.Count, 3 - finalImagePaths.Count);
+
+                    for (int i = 0; i < imagesToUpload; i++)
+                    {
+                        var tempPath = tempImagePaths[i];
+
+                        // Upload to Cloudinary
+                        using (var stream = new FileStream(tempPath, FileMode.Open))
+                        {
+                            var result = await ComputerService.UploadFileToCloudinaryAsync(stream, args.Data, i + 1);
+                            if (result != null)
+                            {
+                                finalImagePaths.Add(result);
+                                await ShowToast($"Image Uploaded Successfully to Cloudinary.", "success");
+                            }
+                            else
+                            {
+                                await ShowToast($"Failed to upload image to Cloudinary.", "error");
+                            }
+                        }
+                    }
+
+                    args.Data.Images = string.Join(",", finalImagePaths);
+                    tempImagePaths.Clear();
+
+                    // Update all properties before saving
+                    args.Data.UpdateAllProperties();
+
+                    await ComputerService.AddOrUpdateComputerAsync(args.Data);
+                    computerData = (await ComputerService.GetComputerAsync()).ToList();
+
+                    // Extract current image URLs from the computer model
+                    List<string> currentImageUrls = args.Data.Images?.Split(',').Select(url => url.Trim()).ToList() ?? new List<string>();
+                    List<string> imagesToDelete = finalImagePaths.Except(currentImageUrls).ToList();
+
+                    // Log the values for debugging
+                    Console.WriteLine("Current Image URLs: " + string.Join(", ", currentImageUrls));
+                    Console.WriteLine("Final Image Paths: " + string.Join(", ", finalImagePaths));
+                    Console.WriteLine("Images to Delete: " + string.Join(", ", imagesToDelete));
+
+                    foreach (var imageUrl in imagesToDelete)
+                    {
+                        bool isDeletedFromCloudinary = await ComputerService.DeleteFileFromCloudinaryAsync(imageUrl);
+                        if (isDeletedFromCloudinary)
+                        {
+                            await ShowToast($"Image Deleted Successfully from Cloudinary", "success");
+                        }
+                        else
+                        {
+                            await ShowToast($"Failed to delete image from Cloudinary", "error");
+                        }
+                    }
+
+                    if (args.Action == "Add")
+                    {
+                        NavigationManager.NavigateTo("/ComputerInventory", true);
+                    }
+
+                    await ShowToast($"Record {args.Action}ed Successfully", "success");
+                }
+            }
+            else if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+            {
+                foreach (var record in selectedRecords)
+                {
+                    var deleteId = record.Id;
+                    await ComputerService.DeleteComputerAsync(deleteId);
+
+                    if (!string.IsNullOrEmpty(record.Images))
+                    {
+                        foreach (var imageUrl in record.Images.Split(','))
+                        {
+                            bool isDeleted = await ComputerService.DeleteFileFromCloudinaryAsync(imageUrl);
+                            if (!isDeleted)
+                            {
+                                Console.WriteLine($"Failed to delete image from Cloudinary: {imageUrl}");
+                            }
+                        }
+                    }
+                }
+
+                await ShowToast("Records Deleted Successfully", "success");
+            }
+
+            if (args.Action != null)
+            {
+                if (args.Action == "Add")
+                {
+                    action = "Added";
+                }
+                else if (args.Action == "Edit")
+                {
+                    action = "Edited";
+                }
+                else if (args.Action == "Delete")
+                {
+                    action = "Deleted";
+                }
+                string crudOperationMessage = $"Record {action} in Computer Inventory";
+                await UserLogsService.LogActivityAsync(new UserLogsModel
+                {
+                    UserId = userId,
+                    UserName = userName,
+                    CrudOperation = crudOperationMessage,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred in ActionBeginHandler: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            await ShowToast("Operation failed", "error");
+        }
+    }
+
+    private async Task Save(MouseEventArgs args)
+    {
+        await SfComputerGrid.EndEditAsync();
+        ComputerModel = await ComputerService.GetComputerByIdAsync(ComputerModel.Id); // Update the ComputerModel after save
+    }
+
+    private async Task Cancel(MouseEventArgs args)
+    {
+        await SfComputerGrid.CloseEditAsync();
+        ComputerModel = await ComputerService.GetComputerByIdAsync(ComputerModel.Id); // Update the ComputerModel after cancel
+    }
+
+    public async void TooBarBtnClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id.Contains("SfComputerGrid_excelexport"))
+        {
+            ExcelExportProperties exportProperties = new ExcelExportProperties
+            {
+                FileName = $"ComputerInventory_{DateTime.Now:yyyyMMdd_HHmm}.xlsx" // Custom filename with timestamp
+            };
+            await SfComputerGrid.ExportToExcelAsync(exportProperties);
+        }
+        else if (args.Item.Id.Contains("SfComputerGrid_pdfexport"))
+        {
+            PdfExportProperties exportProperties = new PdfExportProperties
+            {
+                PageOrientation = Syncfusion.Blazor.Grids.PageOrientation.Landscape,
+                FileName = $"ComputerInventory_{DateTime.Now:yyyyMMdd_HHmm}.pdf" // Custom filename with timestamp
+            };
+            await SfComputerGrid.ExportToPdfAsync(exportProperties);
+        }
+        else if (args.Item.Id.Contains("_Update"))
+        {
+            await SfComputerGrid.EndEditAsync();
+        }
+        else if (args.Item.Text == "Duplicate")
+        {
+            var selectedComputerInventory = (await SfComputerGrid.GetSelectedRecords()).FirstOrDefault();
+            if (selectedComputerInventory != null)
+            {
+                await DuplicateRecord(selectedComputerInventory);
+            }
+        }
+    }
+
+    private void Change()
+    {
+        if (isImageUploading)
+        {
+            this.SfComputerGrid.EnableToolbarItemsAsync(new List<string>() { "Update" }, false);
+        }
+        else
+        {
+            this.SfComputerGrid.EnableToolbarItemsAsync(new List<string>() { "Update" }, true);
+        }
+    }
+
+    private async Task CloudinaryImageUpload(UploadChangeEventArgs args, ComputerModel computerModel)
+    {
+        try
+        {
+            isImageUploading = true;
+            Change();
+            await ShowToast($"Please wait for the image to complete uploading before saving.", "warning");
+            const long maxAllowedSize = 10485760; // 10MB in bytes
+
+            if (args?.Files == null || !args.Files.Any())
+            {
+                throw new InvalidOperationException("No files provided for upload.");
+            }
+
+            foreach (var file in args.Files.Take(3))
+            {
+                using var stream = file.File.OpenReadStream(maxAllowedSize);
+                if (stream.Length > maxAllowedSize)
+                {
+                    await ShowToast("File size exceeds the 10 MB limit.", "error");
+                    return;
+                }
+
+                // Upload to Cloudinary
+                var result = await ComputerService.UploadFileToCloudinaryAsync(stream, computerModel, 1);
+                if (result != null)
+                {
+                    // Update the computer model with the new image URL
+                    List<string> imageUrls = computerModel.Images?.Split(',').Select(url => url.Trim()).ToList() ?? new List<string>();
+                    imageUrls.Add(result);
+                    computerModel.Images = string.Join(",", imageUrls);
+
+                    // Persist changes to the database
+                    await ComputerService.AddOrUpdateComputerAsync(computerModel);
+                    await ShowToast($"Image Uploaded Successfully to Cloudinary.", "success");
+                }
+                else
+                {
+                    await ShowToast($"Failed to upload image to Cloudinary.", "error");
+                }
+            }
+
+            StateHasChanged(); // Ensure the UI updates immediately
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while uploading images: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+        }
+        finally
+        {
+            isImageUploading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveImage(string imageUrl, ComputerModel computerModel)
+    {
+        if (computerModel == null)
+        {
+            Console.WriteLine("Computer model is null.");
+            return;
+        }
+
+        try
+        {
+            List<string> imageUrls = computerModel.Images?.Split(',').Select(url => url.Trim()).ToList() ?? new List<string>();
+
+            if (imageUrls.Contains(imageUrl))
+            {
+                // Remove the image URL from the list
+                imageUrls.Remove(imageUrl);
+                computerModel.Images = string.Join(",", imageUrls);
+                await ShowToast($"Image Deleted Successfully from Database", "success");
+
+                // Delete the image from Cloudinary
+                bool isDeletedFromCloudinary = await ComputerService.DeleteFileFromCloudinaryAsync(imageUrl);
+                if (isDeletedFromCloudinary)
+                {
+                    Console.WriteLine($"Image {imageUrl} deleted from Cloudinary.");
+                    await ShowToast($"Image Deleted Successfully from Cloudinary", "success");
+
+                    // Persist changes to the database
+                    await ComputerService.AddOrUpdateComputerAsync(computerModel);
+                    Console.WriteLine("Computer updated in the database.");
+                }
+                else
+                {
+                    await ShowToast($"Failed to delete image from Cloudinary", "error");
+                    Console.WriteLine($"Failed to delete image from Cloudinary: {imageUrl}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Image not found in the list.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while removing the image: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+        }
+    }
+    
+    private string GetDialogHeaderText(ComputerModel ComputerModel)
+    {
+        return ComputerModel?.Id == 0 ? "Add New computer" : $"Edit {ComputerModel.ComputerName}";
+    }
+
+    private void OpenCarousel(string[] images)
+    {
+        carouselImages = images;
+        JS.InvokeVoidAsync("openModal");
+    }
+}
+
+<style>
+
+    /* Define the font size*/
+    .e-grid .e-headercelldiv {
+        font-size: 15px;
+    }
+
+    .e-grid .e-rowcell {
+        font-size: 20px;
+    }
+
+/* Define color classes */
+.colour-yellow {
+    background-color: #F6FB7A;
+}
+
+.colour-green {
+    background-color: #B4E380;
+}
+
+.colour-red {
+    background-color: #FF6969;
+}
+
+.colour-orange {
+    background-color: #FFD580;
+}
+
+.colour-blue {
+    background-color: #ADD8E6;
+}
+
+.colour-cyan {
+    background-color: #E0FFFF;
+}
+
+.colour-magenta {
+    background-color: #FFB3FF;
+}
+
+/* Apply colors on row hover */
+.e-grid .e-gridcontent .e-row:hover .e-rowcell.colour-yellow {
+    background-color: #F6FB7A !important;
+}
+
+.e-grid .e-gridcontent .e-row:hover .e-rowcell.colour-green {
+    background-color: #B4E380 !important;
+}
+
+.e-grid .e-gridcontent .e-row:hover .e-rowcell.colour-red {
+    background-color: #FF6969 !important;
+}
+
+.e-grid .e-gridcontent .e-row:hover .e-rowcell.colour-orange {
+    background-color: #FFD580 !important;
+}
+
+.e-grid .e-gridcontent .e-row:hover .e-rowcell.colour-blue {
+    background-color: #ADD8E6 !important;
+}
+
+.e-grid .e-gridcontent .e-row:hover .e-rowcell.colour-cyan {
+    background-color: #E0FFFF !important;
+}
+
+.e-grid .e-gridcontent .e-row:hover .e-rowcell.colour-magenta {
+    background-color: #FFB3FF !important;
+}
+
+/* Apply colors when the row is selected */
+.e-grid .e-gridcontent .e-row .e-rowcell.colour-yellow.e-selectionbackground {
+    background-color: #F6FB7A !important;
+}
+
+.e-grid .e-gridcontent .e-row .e-rowcell.colour-green.e-selectionbackground {
+    background-color: #B4E380 !important;
+}
+
+.e-grid .e-gridcontent .e-row .e-rowcell.colour-red.e-selectionbackground {
+    background-color: #FF6969 !important;
+}
+
+.e-grid .e-gridcontent .e-row .e-rowcell.colour-orange.e-selectionbackground {
+    background-color: #FFD580 !important;
+}
+
+.e-grid .e-gridcontent .e-row .e-rowcell.colour-blue.e-selectionbackground {
+    background-color: #ADD8E6 !important;
+}
+
+.e-grid .e-gridcontent .e-row .e-rowcell.colour-cyan.e-selectionbackground {
+    background-color: #E0FFFF !important;
+}
+
+.e-grid .e-gridcontent .e-row .e-rowcell.colour-magenta.e-selectionbackground {
+    background-color: #FFB3FF !important;
+}
+
+</style>
+
+<div id="imageCarouselModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
+    <div class="bg-white p-6 rounded-lg w-3/4 h-3/4 mx-auto relative">
+        <span class="close cursor-pointer float-right hover:scale-105 ease-in transition-all duration-300" onclick="closeModal()"><i class="fa-regular fa-circle-xmark text-indigo-600 text-2xl"></i></span>
+        <div class="control-container flex justify-center items-center h-full">
+            <SfCarousel AnimationEffect="CarouselAnimationEffect.Fade">
+                @foreach (var image in carouselImages)
+                {
+                                    <CarouselItem>
+                                        <figure class="img-container mx-auto w-3/4 h-full p-6">
+                                            <img src="@image" alt="Image" class="w-full h-full object-contain" />
+                                        </figure>
+                                    </CarouselItem>
+                }
+            </SfCarousel>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('imageCarouselModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('imageCarouselModal').style.display = 'none';
+    }
+</script>
