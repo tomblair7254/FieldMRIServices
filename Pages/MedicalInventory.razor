@@ -55,7 +55,7 @@
             <GridPageSettings PageSize="10"></GridPageSettings>
 
             <GridColumns>
-                <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="50px" AllowFiltering="false" Freeze="FreezeDirection.Left">
+                <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="60px" AllowFiltering="false" Freeze="FreezeDirection.Left">
                 </GridColumn>
 
                 <GridColumn Field="@nameof(InventoryModel.ImagePaths)" HeaderText="IMAGE" Width="230px" AllowFiltering="false">
@@ -226,7 +226,7 @@
                 </GridColumn>
 
                 <GridColumn HeaderText="STATUS / NOTES" Field="@nameof(InventoryModel.StatusFirstPart)" Width="500px" Freeze="FreezeDirection.Right">
-                    <Template>
+@*                     <Template>
                         @{
                             var statusNotes = (context as InventoryModel);
                             if (statusNotes != null)
@@ -243,7 +243,7 @@
                             }
                         }
                     </Template>
-                    <EditTemplate Context="context">
+ *@                    <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
