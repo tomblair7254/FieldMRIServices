@@ -1,0 +1,308 @@
+﻿@page "/"
+@attribute [Authorize]
+
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using System.Dynamic
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Threading.Tasks;
+
+@inject IInventoryServices InventoryServices
+@inject IComputerService ComputerService
+@inject IJSRuntime JS
+
+<PageTitle>Home</PageTitle>
+
+<div class="flex flex-col  h-screen">
+    <div class="flex flex-col sm:flex-row justify-center items-center space-y-12 sm:space-y-0 space-x-0 sm:space-x-6 mb-20 mx-6 sm:mx-0">
+        <div class="flex ">
+            <img class="w-full h-full object-cover" src="/Images/FMS.png">
+        </div>
+        <h1 class="text-6xl sm:text-8xl  font-excon">Field MRI Services</h1>
+    </div>
+@*     <div class="flex flex-col space-y-4">
+        <p class="font-alpino text-indigo-600 text-center">Search All Inventories</p>
+        <div class="flex flex-col sm:flex-row sm:space-x-12 space-y-4 sm:space-y-0 px-4 sm:px-32 justify-center items-center">
+            <SfTextBox 
+    TValue="string" 
+    @bind-Value="searchText" 
+    Placeholder="Search by any field..." 
+    Width="70%" 
+    OnInput="OnSearchInput"
+    CssClass="transition-all duration-300 ease-in-out transform focus:scale-105 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+/>
+
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(searchText))
+    {
+        @if (computerData != null && computerData.Any())
+        {
+            <div>
+                <div class="flex justify-between items-center">
+                    <h3 class="font-alpino text-indigo-600 text-center">Computer Inventory Results</h3>
+                    <a href="/ComputerInventory" class="text-indigo-500 underline underline-offset-4 hover:underline-offset-2 hover:text-black font-alpino duration-300 ease-in transition-all">Go to Table</a>
+                </div>
+                <SfGrid DataSource="@computerData" AllowSorting="true" AllowPaging="true" GridLines="GridLine.Both" AllowResizing="true">
+                    <GridPageSettings PageSize="10"></GridPageSettings>
+                    <GridColumns>
+                        @foreach (var property in GetVisibleProperties(computerData))
+                        {
+                            if (property.Name == "SelectedTagScope" || 
+                                property.Name == "SelectedTagcolor" || 
+                                property.Name == "TagFirstPart" || 
+                                property.Name == "SelectedComputerNamecolor" || 
+                                property.Name == "SelectedLocationcolor" || 
+                                property.Name == "SelectedSerialcolor" || 
+                                property.Name == "SelectedHardDrivecolor" || 
+                                property.Name == "SelectedMemorycolor" || 
+                                property.Name == "SelectedPlayercolor" || 
+                                property.Name == "SelectedNetworkcolor" || 
+                                property.Name == "SelectedSCSIcolor" || 
+                                property.Name == "SelectedMultipleComcolor" || 
+                                property.Name == "SelectedVideocolor" || 
+                                property.Name == "SelectedStatuscolor" || 
+                                property.Name == "SelectedQtycolor" || 
+                                property.Name == "SelectedBarCodescolor" || 
+                                property.Name == "SelectedPincolor" || 
+                                property.Name == "SelectedFibercolor" || 
+                                property.Name == "SelectedIEEEcolor" || 
+                                property.Name == "SelectedModiskcolor" || 
+                                property.Name == "SelectedSASRaidcolor" || 
+                                property.Name == "ComputerNameFirstPart" || 
+                                property.Name == "LocationFirstPart" || 
+                                property.Name == "SerialFirstPart" || 
+                                property.Name == "HardDriveFirstPart" || 
+                                property.Name == "MemoryFirstPart" || 
+                                property.Name == "PlayerFirstPart" || 
+                                property.Name == "NetworkFirstPart" || 
+                                property.Name == "SCSIFirstPart" || 
+                                property.Name == "MultipleComFirstPart" || 
+                                property.Name == "VideoFirstPart" || 
+                                property.Name == "StatusFirstPart" || 
+                                property.Name == "QtyFirstPart" || 
+                                property.Name == "BarCodesFirstPart" || 
+                                property.Name == "PinFirstPart" || 
+                                property.Name == "FiberFirstPart" || 
+                                property.Name == "IEEEFirstPart" || 
+                                property.Name == "ModiskFirstPart" || 
+                                property.Name == "SASRaidFirstPart")
+                            {
+                                continue;
+                            }
+                            else if (property.Name == "Images")
+                            {
+                                <GridColumn Field="@property.Name" HeaderText="Images" Width="150" AllowFiltering="true">
+                                    <Template>
+                                        @{
+                                            var computerModel = context as ComputerModel;
+                                            var imageUrls = computerModel?.Images?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                                        }
+                                        <div class="flex space-x-4">
+                                            @if (imageUrls.Length == 0)
+                                            {
+                                                <span class="font-alpino text-base font-light">No Images Have been Uploaded.</span>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var imageUrl in imageUrls)
+                                                {
+                                                    <div class="image">
+                                                        <img class="w-12 h-12" src="@imageUrl" alt=""/>
+                                                    </div>
+                                                }
+                                                <button @onclick="() => OpenCarousel(imageUrls)" class=""><i class="fa-solid fa-expand text-indigo-600 text-md hover:scale-110 ease-in transition-all duration-300"></i></button>
+                                            }
+                                        </div>
+                                    </Template>
+                                </GridColumn>
+                            }
+                            else
+                            {
+                                var fieldName = property.Name.ToLower() == "id" || property.Name.ToLower() == "images" ? property.Name : property.Name + "FirstPart";
+                                <GridColumn Field="@fieldName" HeaderText="@property.Name" Width="150" AllowFiltering="true"></GridColumn>
+                            }
+                        }
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        }
+
+        @if (inventoryData != null && inventoryData.Any())
+        {
+            <div>
+                <div class="flex justify-between items-center">
+                    <h3 class="font-alpino text-indigo-600 text-center">Medical Inventory Results</h3>
+                    <a href="/MedicalInventory" class="text-indigo-500 underline underline-offset-4 hover:underline-offset-2 hover:text-black font-alpino duration-300 ease-in transition-all">Go to Table</a>
+                </div>
+                <SfGrid DataSource="@inventoryData" AllowSorting="true" AllowPaging="true" GridLines="GridLine.Both" AllowResizing="true">
+                    <GridPageSettings PageSize="10"></GridPageSettings>
+                    <GridColumns>
+                        @foreach (var property in GetVisibleProperties(inventoryData))
+                        {
+                            if (property.Name == "SelectedTagScope" || 
+                                property.Name == "SelectedTagcolor" || 
+                                property.Name == "TagFirstPart" || 
+                                property.Name == "NameFirstPart" || 
+                                property.Name == "QtyFirstPart" || 
+                                property.Name == "PinFirstPart" || 
+                                property.Name == "LocationFirstPart" || 
+                                property.Name == "BarCodeFirstPart" || 
+                                property.Name == "StatusFirstPart" || 
+                                property.Name == "MRITSFirstPart" || 
+                                property.Name == "SelectedNamecolor" || 
+                                property.Name == "SelectedQtycolor" || 
+                                property.Name == "SelectedPincolor" || 
+                                property.Name == "SelectedLocationcolor" || 
+                                property.Name == "SelectedBarCodecolor" || 
+                                property.Name == "SelectedStatuscolor" || 
+                                property.Name == "SelectedMRITScolor")
+                            {
+                                continue;
+                            }
+                            else if (property.Name == "Images")
+                            {
+                                <GridColumn Field="@property.Name" HeaderText="Images" Width="150" AllowFiltering="true">
+                                    <Template>
+                                        @{
+                                            var inventoryModel = context as InventoryModel;
+                                            var imageUrls = inventoryModel?.Images?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                                        }
+                                        <div class="flex space-x-4">
+                                            @if (imageUrls.Length == 0)
+                                            {
+                                                <span class="font-alpino text-base font-light">No Images Have been Uploaded.</span>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var imageUrl in imageUrls)
+                                                {
+                                                    <div class="image">
+                                                        <img class="w-12 h-12" src="@imageUrl" alt=""/>
+                                                    </div>
+                                                }
+                                                <button @onclick="() => OpenCarousel(imageUrls)" class=""><i class="fa-solid fa-expand text-indigo-600 text-md hover:scale-110 ease-in transition-all duration-300"></i></button>
+                                            }
+                                        </div>
+                                    </Template>
+                                </GridColumn>
+                            }
+                            else
+                            {
+                                var fieldName = property.Name.ToLower() == "id" || property.Name.ToLower() == "images" ? property.Name : property.Name + "FirstPart";
+                                <GridColumn Field="@fieldName" HeaderText="@property.Name" Width="150" AllowFiltering="true"></GridColumn>
+                            }
+                        }
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        }
+
+        @if ((computerData == null || !computerData.Any()) && (inventoryData == null || !inventoryData.Any()))
+        {
+            <p class="text-center text-red-500">No records found.</p>
+        }
+    }*@
+</div>
+@*
+@code {
+    private string searchText = string.Empty;
+    private IEnumerable<object> computerData = null;
+    private IEnumerable<object> inventoryData = null;
+    private Timer debounceTimer;
+
+    private void OnSearchInput(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? string.Empty;
+        debounceTimer?.Dispose();
+        debounceTimer = new Timer(async _ => await InvokeAsync(FilterData), null, 500, Timeout.Infinite);
+    }
+
+    private async Task FilterData()
+    {
+        if (ComputerService == null || InventoryServices == null)
+        {
+            throw new InvalidOperationException("Services are not properly injected.");
+        }
+
+        var computerResults = await ComputerService.SearchComputerAsync(searchText);
+        var inventoryResults = await InventoryServices.SearchInventoryAsync(searchText);
+
+        computerData = computerResults.Cast<object>();
+        inventoryData = inventoryResults.Cast<object>();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private IEnumerable<System.Reflection.PropertyInfo> GetVisibleProperties(IEnumerable<object> data)
+    {
+        if (data == null || !data.Any())
+        {
+            return Enumerable.Empty<System.Reflection.PropertyInfo>();
+        }
+
+        var allProperties = new HashSet<string>();
+        var visibleProperties = new List<System.Reflection.PropertyInfo>();
+
+        foreach (var item in data)
+        {
+            var properties = item.GetType().GetProperties();
+            foreach (var prop in properties)
+            {
+                if (allProperties.Add(prop.Name))
+                {
+                    visibleProperties.Add(prop);
+                }
+            }
+        }
+
+        return visibleProperties;
+    }
+
+    private string[] carouselImages = Array.Empty<string>();
+    private void OpenCarousel(string[] images)
+    {
+        carouselImages = images;
+        JS.InvokeVoidAsync("openModal");
+    }
+}
+
+<div id="imageCarouselModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out" style="display: none;">
+    <div class="bg-white p-6 rounded-lg w-3/4 h-3/4 mx-auto relative">
+        <span class="close cursor-pointer float-right hover:scale-105 ease-in transition-all duration-300" onclick="closeModal()"><i class="fa-regular fa-circle-xmark text-indigo-600 text-2xl"></i></span>
+        <div class="control-container flex justify-center items-center h-full">
+            <SfCarousel AnimationEffect="CarouselAnimationEffect.Fade">
+                @foreach (var image in carouselImages)
+                {
+                    <CarouselItem>
+                        <figure class="img-container mx-auto w-3/4 h-full p-6">
+                            <img src="@image" alt="Image" class="w-full h-full object-contain" />
+                        </figure>
+                    </CarouselItem>
+                }
+            </SfCarousel>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        const modal = document.getElementById('imageCarouselModal');
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('opacity-100');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('imageCarouselModal');
+        modal.classList.remove('opacity-100');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+</script> *@

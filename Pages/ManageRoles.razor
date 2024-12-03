@@ -1,0 +1,315 @@
+@page "/UserManagement/ManageRoles"
+@attribute [Authorize]
+
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@using Microsoft.AspNetCore.Identity
+@using FieldMRIServices.Model
+
+@inject RoleManager<ApplicationRoles> RoleManager
+
+<PageTitle>Manage Roles</PageTitle>
+
+<div>
+    <h3 class="text-center text-4xl font-excon">Manage Roles</h3>
+
+    <div class="flex flex-col justify-center items-center m-0 py-12">
+        <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl border-gray-400 border font-alpino">
+            <EditForm Model="@newRole" OnValidSubmit="@HandleValidSubmit" class="space-y-6">
+                <DataAnnotationsValidator />
+                <div class="flex flex-col px-12">
+                    <InputText id="roleName" @bind-Value="newRole.Name" placeholder="role name"
+                        class="border py-1 px-2 rounded" />
+                </div>
+
+                <div class="flex flex-col mt-4">
+                    <h3 class="mb-4 text-center font-medium text-2xl">Permissions</h3>
+                    <div class="flex justify-center items-center flex-wrap gap-6">
+                        @foreach (var permission in availablePermissions)
+                        {
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" @onchange="@(e => UpdateSelectedPermissions(e, permission))"
+                                    checked="@selectedPermissions.Contains(permission)"
+                                    disabled="@(permission == "Inventory View")" />
+                                <label>@permission</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                    <ValidationSummary class="text-red-500 m-0 flex justify-center p-4" />
+
+                <div class="flex justify-center items-center">
+                    <button type="submit"
+                        class="font-medium font-excon py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">Add
+                        Role</button>
+                </div>
+
+                @if (errors.Any())
+                {
+                    <ul class="text-red-500 mt-4">
+                        @foreach (var error in errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="flex flex-col justify-center m-0 py-6">
+<SfGrid DataSource="@roles" AllowSorting="true" AllowFiltering="true" AllowPaging="true" GridLines="GridLine.Both" AllowResizing="true" Toolbar="@(new List<string> { "Search" })">
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+    <GridPageSettings PageSize="10"></GridPageSettings>
+    <GridColumns>
+        <GridColumn Field="Name" HeaderText="Role Name" Width="150"></GridColumn>
+        <GridColumn Field="Permissions" HeaderText="Permissions" Width="300" AllowSorting="false">
+            <Template>
+                <div class="flex justify-center items-center flex-wrap gap-6">
+                    @foreach (var permission in availablePermissions)
+                    {
+                        <div class="flex space-x-2 justify-center items-center">
+                            <input type="checkbox"
+                                checked="@((context as ApplicationRoles).Permissions.Contains(permission))"
+                                @onchange="@(args => UpdateRolePermissions((context as ApplicationRoles), permission, args))"
+                                class="@(((context as ApplicationRoles).Permissions.Contains(permission)) ? "text-indigo-600" : "")" />
+                            <label class="font-alpino font-normal">@permission</label>
+                        </div>
+                    }
+                </div>
+            </Template>
+        </GridColumn>
+        <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+            <Template>
+                    <button
+                        class="font-medium py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        @onclick="@(args => ShowUpdateConfirmation((context as ApplicationRoles)))">
+                        Update
+                    </button>
+                    <button
+                        class="font-medium py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                        @onclick="@(args => ShowDeleteConfirmation((context as ApplicationRoles).Id))">
+                        Delete
+                    </button>
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+    </div>
+
+    <SfDialog @bind-Visible="isDeleteDialogVisible" Width="300px" IsModal="true" ShowCloseIcon="true"
+        Header="Confirm Delete" OnVisibleChange="OnDialogVisibleChange">
+        <DialogContent>
+            <div class="mb-6 font-alpino text-lg">
+                Are you sure you want to delete the role <span class="font-bold">'@roleNameToDelete'</span>?</div>
+        </DialogContent>
+        <DialogFooter>
+            <div class="flex gap-4">
+                <button
+                    class="font-medium font-excon py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                    @onclick="@ConfirmDelete">
+                    Yes
+                </button>
+                <button
+                    class="font-medium font-excon py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    @onclick="@CancelDelete">
+                    No
+                </button>
+            </div>
+        </DialogFooter>
+    </SfDialog>
+
+    <SfDialog @bind-Visible="isUpdateDialogVisible" Width="300px" IsModal="true" ShowCloseIcon="true"
+        Header="Confirm Update" OnVisibleChange="OnDialogVisibleChange">
+        <DialogContent>
+            <div class="mb-6 font-alpino text-lg">
+                Are you sure you want to update the permissions for the role <span
+                    class="font-bold">'@roleNameToUpdate'</span>?</div>
+        </DialogContent>
+        <DialogFooter>
+            <div class="flex gap-4">
+                <button
+                    class="font-medium font-excon py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    @onclick="@ConfirmUpdate">
+                    Yes
+                </button>
+                <button
+                    class="font-medium font-excon py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                    @onclick="@CancelUpdate">
+                    No
+                </button>
+            </div>
+        </DialogFooter>
+    </SfDialog>
+</div>
+
+@code {
+    private List<ApplicationRoles> roles = new List<ApplicationRoles>();
+    private bool isDeleteDialogVisible = false;
+    private bool isUpdateDialogVisible = false;
+    private string roleIdToDelete;
+    private ApplicationRoles roleToUpdate;
+    private ApplicationRoles newRole = new ApplicationRoles();
+    private List<string> errors = new List<string>();
+    private List<string> availablePermissions = new List<string> { "Inventory View", "Inventory Edit", "Inventory Add", "Inventory Delete", "Manage Users", "Manage Roles", "See User Logs", "Full Access" };
+    private List<string> selectedPermissions = new List<string> { "Inventory View" };
+    private string roleNameToUpdate;
+    private string roleNameToDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+    }
+
+    private async Task LoadRoles()
+    {
+        roles = RoleManager.Roles.ToList();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        errors.Clear();
+
+        if (string.IsNullOrWhiteSpace(newRole.Name))
+        {
+            errors.Add("Role name is required.");
+            return;
+        }
+
+        newRole.Permissions = selectedPermissions;
+        var result = await RoleManager.CreateAsync(newRole);
+        if (result.Succeeded)
+        {
+            await LoadRoles();
+            newRole = new ApplicationRoles(); // Reset form
+            selectedPermissions = new List<string> { "Inventory View" }; // Reset permissions
+        }
+        else
+        {
+            errors.AddRange(result.Errors.Select(e => e.Description));
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        isDeleteDialogVisible = false;
+        var role = await RoleManager.FindByIdAsync(roleIdToDelete);
+        if (role != null)
+        {
+            var result = await RoleManager.DeleteAsync(role);
+            if (result.Succeeded)
+            {
+                await LoadRoles();
+            }
+            else
+            {
+                errors.AddRange(result.Errors.Select(e => e.Description));
+            }
+        }
+    }
+
+    private void CancelDelete()
+    {
+        isDeleteDialogVisible = false;
+    }
+
+    private void ShowDeleteConfirmation(string roleId)
+    {
+        var role = roles.FirstOrDefault(r => r.Id == roleId);
+        if (role != null)
+        {
+            roleIdToDelete = roleId;
+            roleNameToDelete = role.Name;
+            isDeleteDialogVisible = true;
+        }
+    }
+
+    private async Task ShowUpdateConfirmation(ApplicationRoles role)
+    {
+        roleToUpdate = await RoleManager.FindByIdAsync(role.Id);
+        if (roleToUpdate != null)
+        {
+            selectedPermissions = roleToUpdate.Permissions;
+            roleNameToUpdate = roleToUpdate.Name;
+            isUpdateDialogVisible = true;
+        }
+    }
+
+    private async Task ConfirmUpdate()
+    {
+        isUpdateDialogVisible = false;
+
+        if (string.IsNullOrWhiteSpace(roleToUpdate.Name))
+        {
+            errors.Add("Role name is required.");
+            return;
+        }
+
+        var result = await RoleManager.UpdateAsync(roleToUpdate);
+        if (result.Succeeded)
+        {
+            await LoadRoles();
+        }
+        else
+        {
+            errors.AddRange(result.Errors.Select(e => e.Description));
+        }
+    }
+
+    private void CancelUpdate()
+    {
+        isUpdateDialogVisible = false;
+    }
+
+    private void UpdateSelectedPermissions(Microsoft.AspNetCore.Components.ChangeEventArgs e, string permission)
+    {
+        if ((bool)e.Value)
+        {
+            if (!selectedPermissions.Contains(permission))
+            {
+                selectedPermissions.Add(permission);
+            }
+        }
+        else
+        {
+            if (selectedPermissions.Contains(permission))
+            {
+                selectedPermissions.Remove(permission);
+            }
+        }
+    }
+
+    private async Task UpdateRolePermissions(ApplicationRoles role, string permission, Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        if ((bool)e.Value)
+        {
+            if (!role.Permissions.Contains(permission))
+            {
+                role.Permissions.Add(permission);
+            }
+        }
+        else
+        {
+            if (role.Permissions.Contains(permission))
+            {
+                role.Permissions.Remove(permission);
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(role.Name))
+        {
+            errors.Add("Role name is required.");
+            return;
+        }
+
+        var result = await RoleManager.UpdateAsync(role);
+        if (!result.Succeeded)
+        {
+            errors.AddRange(result.Errors.Select(e => e.Description));
+        }
+
+        await LoadRoles();
+    }
+}

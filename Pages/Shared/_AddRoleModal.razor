@@ -1,0 +1,73 @@
+@page "/UserManagement/AddRoleModal"
+@using Microsoft.AspNetCore.Identity
+@inject RoleManager<IdentityRole> RoleManager
+
+@if (isVisible)
+{
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close" @onclick="CloseModal">&times;</span>
+            <h3 class="text-2xl font-bold mb-4">Add Role</h3>
+            <EditForm Model="@newRole" OnValidSubmit="@HandleValidSubmit" class="space-y-4">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-red-500" />
+
+                <div class="flex flex-col">
+                    <label for="roleName" class="mb-1">Role Name:</label>
+                    <InputText id="roleName" @bind-Value="newRole.Name" class="border p-2 rounded" />
+                </div>
+
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded">Add Role</button>
+
+                @if (errors.Any())
+                {
+                    <ul class="text-red-500 mt-4">
+                        @foreach (var error in errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private IdentityRole newRole = new IdentityRole();
+    private List<string> errors = new List<string>();
+    private bool isVisible = false;
+
+    private async Task HandleValidSubmit()
+    {
+        errors.Clear();
+        var result = await RoleManager.CreateAsync(newRole);
+        if (result.Succeeded)
+        {
+            await OnRoleAdded.InvokeAsync(null);
+            CloseModal();
+        }
+        else
+        {
+            foreach (var error in result.Errors)
+            {
+                errors.Add(error.Description);
+            }
+        }
+    }
+
+    public void Show()
+    {
+        isVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        isVisible = false;
+        StateHasChanged();
+    }
+
+    [Parameter]
+    public EventCallback OnRoleAdded { get; set; }
+}

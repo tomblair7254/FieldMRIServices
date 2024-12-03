@@ -1,0 +1,111 @@
+@using Syncfusion.Blazor.Popups
+@using Microsoft.AspNetCore.Identity
+@inject RoleManager<ApplicationRoles> RoleManager
+
+<SfDialog @ref="dialog" Width="50%" IsModal="true" ShowCloseIcon="true" Visible="@isVisible" OnOverlayClick="CloseModal">
+    <DialogTemplates>
+        <Header>
+            <h3 class="text-2xl font-bold m-0 p-0">Add Role</h3>
+        </Header>
+        <Content>
+            <EditForm Model="@newRole" OnValidSubmit="@HandleValidSubmit" class="space-y-4">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-red-500" />
+
+                <div class="flex flex-col px-12">
+                    <label for="roleName" class="mb-1">Role Name:</label>
+                    <InputText id="roleName" @bind-Value="newRole.Name" class="border p-2 rounded" />
+                </div>
+
+                <div class="flex flex-col mt-4">
+                    <h5 class="mb-4 text-center">Permissions</h5>
+                    <div class="flex justify-center flex-wrap gap-6">
+                        @foreach (var permission in availablePermissions)
+                        {
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" 
+                                       @onchange="@(e => UpdateSelectedPermissions(e, permission))" 
+                                       checked="@selectedPermissions.Contains(permission)" 
+                                       disabled="@(permission == "Inventory View")" />
+                                <label>@permission</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="flex justify-center items-center mt-4">
+                    <button type="submit" class="font-medium font-excon py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">Add Role</button>
+                </div>
+
+                @if (errors.Any())
+                {
+                    <ul class="text-red-500 mt-4">
+                        @foreach (var error in errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    private ApplicationRoles newRole = new ApplicationRoles();
+    private List<string> errors = new List<string>();
+    private bool isVisible = false;
+    private SfDialog dialog;
+    private List<string> availablePermissions = new List<string> { "Inventory View", "Inventory Edit", "Inventory Add", "Inventory Delete", "Manage Users", "Manage Roles", "See User Logs", "Full Access" };
+    private List<string> selectedPermissions = new List<string> { "Inventory View" };
+
+    private async Task HandleValidSubmit()
+    {
+        errors.Clear();
+        newRole.Permissions = selectedPermissions;  // Assuming your IdentityRole has a Permissions property
+        var result = await RoleManager.CreateAsync(newRole);
+        if (result.Succeeded)
+        {
+            await OnRoleAdded.InvokeAsync(null);
+            CloseModal();
+        }
+        else
+        {
+            foreach (var error in result.Errors)
+            {
+                errors.Add(error.Description);
+            }
+        }
+    }
+
+    public void Show()
+    {
+        isVisible = true;
+    }
+
+    private void CloseModal()
+    {
+        isVisible = false;
+    }
+
+    private void UpdateSelectedPermissions(Microsoft.AspNetCore.Components.ChangeEventArgs e, string permission)
+    {
+        if ((bool)e.Value)
+        {
+            if (!selectedPermissions.Contains(permission))
+            {
+                selectedPermissions.Add(permission);
+            }
+        }
+        else
+        {
+            if (selectedPermissions.Contains(permission))
+            {
+                selectedPermissions.Remove(permission);
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback OnRoleAdded { get; set; }
+}

@@ -1,0 +1,166 @@
+﻿@page "/navbar"
+
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.SplitButtons
+@using Microsoft.AspNetCore.Identity
+@using Syncfusion.Blazor.DropDowns
+@inject IJSRuntime JSRuntime
+
+@inject UserManager<IdentityUser> UserManager
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject RoleManager<ApplicationRoles> RoleManager
+
+<SfAppBar ColorMode="AppBarColor.Primary" class="navbarcolor relative">
+    <div class="w-full flex justify-between items-center p-2">
+        <div class="flex items-center">
+            <label class="text-2xl sm:text-xl text-white font-excon font-medium">Field MRI Services</label>
+        </div>
+
+        <div class="flex-grow flex justify-center items-center gap-12 hidden lg:flex">
+            <div class="flex justify-center items-center gap-4 menu-items">
+                <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-home" Content="Home"
+                          OnClick="@(context => NavigateToPage("/"))" />
+                <SfDropDownButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-table-merge" Content="Inventory">
+                    <DropDownMenuItems>
+                        <DropDownMenuItem Text="FMS Inventory" Url="/MedicalInventory"></DropDownMenuItem>
+                        <DropDownMenuItem Text="FMS Computer Inventory" Url="/ComputerInventory"></DropDownMenuItem>
+                    </DropDownMenuItems>
+                </SfDropDownButton>
+                @*                 <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-table-merge"
+                Content="Computer Inventory" OnClick="@(context => NavigateToPage("/ComputerInventory"))" />
+                *@
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 hidden lg:flex">
+            @if (hasManageUsersPermission || hasManageRolesPermission || hasFullAccessPermission ||
+            hasSeeUserLogsPermission)
+            {
+                <SfDropDownButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-settings"
+                                  Content="User Settings">
+                    <DropDownMenuItems>
+                        @if (hasManageUsersPermission || hasFullAccessPermission)
+                        {
+                            <DropDownMenuItem Text="Manage Users" Url="/UserManagement/ManageUsers"
+                                              CssClass="hover:bg-gray-200 hover:text-black"></DropDownMenuItem>
+                        }
+                        @if (hasManageRolesPermission || hasFullAccessPermission)
+                        {
+                            <DropDownMenuItem Text="Manage Roles" Url="/UserManagement/ManageRoles"
+                                              CssClass="hover:bg-gray-200 hover:text-black"></DropDownMenuItem>
+                        }
+                        @if (hasSeeUserLogsPermission || hasFullAccessPermission)
+                        {
+                            <DropDownMenuItem Text="User Logs" Url="/UserLogs" CssClass="hover:bg-gray-200 hover:text-black">
+                            </DropDownMenuItem>
+                        }
+                    </DropDownMenuItems>
+                </SfDropDownButton>
+            }
+
+            <LoginDisplay />
+        </div>
+
+        <!-- Burger Menu Button -->
+        <div class="burger-menu-button lg:hidden">
+            <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-menu" OnClick="ToggleMenu" />
+        </div>
+    </div>
+
+    <!-- Burger Menu Items -->
+    <div id="burgerMenu" class="burger-menu-items absolute top-full left-0 w-full bg-indigo-600 py-4 flex-col items-center gap-4 z-10"
+         style="@((isMenuVisible ? "display: flex;" : "display: none;"))">
+        <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-home" Content="Home"
+                  OnClick="@(context => NavigateToPage("/"))" />
+        <SfDropDownButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-table-merge" Content="Medical Inventory">
+            <DropDownMenuItems>
+                <DropDownMenuItem Text="All Inventory" Url="/MedicalInventory"></DropDownMenuItem>
+                <DropDownMenuItem Text="Cabinet" Url="/MedicalInventory/Cabinet"></DropDownMenuItem>
+            </DropDownMenuItems>
+        </SfDropDownButton>
+        <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-table-merge"
+                  Content="Computer Inventory" OnClick="@(context => NavigateToPage("/ComputerInventory"))" />
+        @if (hasManageUsersPermission || hasManageRolesPermission || hasFullAccessPermission ||
+        hasSeeUserLogsPermission)
+        {
+            @if (hasManageUsersPermission || hasFullAccessPermission)
+            {
+                <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-people" Content="Manage Users"
+                          OnClick="@(context => NavigateToPage("/UserManagement/ManageUsers"))" />
+            }
+            @if (hasManageRolesPermission || hasFullAccessPermission)
+            {
+                <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-settings" Content="Manage Roles"
+                          OnClick="@(context => NavigateToPage("/UserManagement/ManageRoles"))" />
+            }
+            @if (hasSeeUserLogsPermission || hasFullAccessPermission)
+            {
+                <SfButton CssClass="e-inherit text-white text-2xl" IconCss="e-icons e-table-merge" Content="User Logs"
+                          OnClick="@(context => NavigateToPage("/UserLogs"))" />
+            }
+        }
+        <LoginDisplay />
+    </div>
+</SfAppBar>
+
+@code {
+    private bool hasManageUsersPermission;
+    private bool hasManageRolesPermission;
+    private bool hasFullAccessPermission;
+    private bool hasSeeUserLogsPermission;
+    private bool isMenuVisible = false;
+
+    private void ToggleMenu()
+    {
+        isMenuVisible = !isMenuVisible;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPermissions();
+    }
+
+    void NavigateToPage(string page)
+    {
+        isMenuVisible = false; // Close the menu when a button is clicked
+        NavigationManager.NavigateTo(page);
+    }
+
+    private async Task LoadPermissions()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var identityUser = await UserManager.GetUserAsync(user);
+            var roles = await UserManager.GetRolesAsync(identityUser);
+
+            // Assuming you have a method to get permissions from roles
+            var permissions = await GetPermissionsFromRoles(roles);
+
+            // Debug output
+            Console.WriteLine($"User: {identityUser.UserName}, Permissions: {string.Join(", ", permissions)}");
+
+            hasManageUsersPermission = permissions.Contains("Manage Users");
+            hasManageRolesPermission = permissions.Contains("Manage Roles");
+            hasFullAccessPermission = permissions.Contains("Full Access");
+            hasSeeUserLogsPermission = permissions.Contains("See User Logs");
+        }
+    }
+
+    private async Task<List<string>> GetPermissionsFromRoles(IList<string> roles)
+    {
+        var permissions = new List<string>();
+        foreach (var role in roles)
+        {
+            var applicationRole = await RoleManager.FindByNameAsync(role);
+            if (applicationRole != null)
+            {
+                permissions.AddRange(applicationRole.Permissions);
+            }
+        }
+        return permissions.Distinct().ToList();
+    }
+}

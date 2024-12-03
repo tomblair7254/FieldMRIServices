@@ -1,0 +1,15 @@
+﻿@using FieldMRIServicesServices.Data
+@inject TokenProvider TokenProvider
+
+<AuthorizeView>
+    <Authorized>
+        <form action="/Identity/Account/Logout" method="post">
+            <SfButton CssClass="e-inherit text-white text-md font-excon font-medium" IconCss="e-icons e-user"
+                Content="Logout" />
+            <input name="__RequestVerificationToken" type="hidden" value="@TokenProvider.XsrfToken" />
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <a class="text-white text-md font-excon font-medium" href="Identity/Account/Login">Login</a>
+    </NotAuthorized>
+</AuthorizeView>

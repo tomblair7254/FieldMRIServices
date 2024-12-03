@@ -1,0 +1,1265 @@
+﻿@page "/MedicalInventory"
+@attribute [Authorize]
+
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Notifications
+@using System.Net
+@using Microsoft.AspNetCore.Identity
+@using System.IO
+@using SixLabors.ImageSharp;
+@using SixLabors.ImageSharp.Formats.Webp;
+@using SixLabors.ImageSharp.Processing;
+@using System.Security.Claims
+@using System.Text.RegularExpressions
+
+@inject NavigationManager NavigationManager
+@inject IInventoryServices InventoryService
+@inject IUserLogsService UserLogsService
+@inject UserManager<IdentityUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject RoleManager<ApplicationRoles> RoleManager
+@inject IJSRuntime JS
+
+<PageTitle>Medical Inventory</PageTitle>
+<div>
+<h3 class="text-center text-4xl font-excon">Medical Inventory</h3>
+
+
+    <div>
+        <h6 style="background-color:#FFD580;width:100px;margin-top:-40px;margin-left:80px;">Green Good</h6>
+        <h6 style="background-color:#F6FB7A; width:100px;margin-left:80px;"> Need Repair</h6>
+        <h6 style="background-color:#FF6969;width:100px ;margin-left:80px;">Red Bad</h6>
+    </div>
+
+    <div class="flex flex-col justify-center m-0 py-12">
+        <div id="wrapper1">
+            <div id="div1"> </div>
+        </div>
+        <SfGrid @ref="SfInventoryGrid" ID="SfInventoryGrid" DataSource="inventoryData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true" AllowMultiSorting="true" Toolbar="@toolbar">
+            <GridSearchSettings IgnoreCase="true"></GridSearchSettings>
+         
+           
+                <SfTextBox Placeholder="Row Color" Width="120px"></SfTextBox> 
+                <SfColorPicker Mode="ColorPickerMode.Palette" Value="@colorValue" ValueChange="ValueChange"></SfColorPicker>            
+           
+                <SfTextBox Placeholder="Cell Color" Width="120px"></SfTextBox>
+                <SfColorPicker Mode="ColorPickerMode.Palette" Value="@colorValue1" ValueChange="ValueChange1"></SfColorPicker>
+           
+
+            <GridEditSettings Mode="EditMode.Normal" AllowAdding="true" ShowDeleteConfirmDialog="true" AllowEditing="true" AllowDeleting="true">
+                <HeaderTemplate>
+                    <span>@(GetDialogHeaderText(context as InventoryModel))</span>
+                </HeaderTemplate>
+
+                <FooterTemplate>
+                    <SfButton OnClick="@Save" IsPrimary="true">Save</SfButton>
+                    <SfButton OnClick="@Cancel">Cancel</SfButton>
+                </FooterTemplate>
+            </GridEditSettings>
+
+            <GridSortSettings>
+                <GridSortColumns>
+@*                     <GridSortColumn Field="@nameof(InventoryModel.Id)" Direction="SortDirection.Descending"></GridSortColumn>
+ *@
+                    <GridSortColumn Field="@nameof(InventoryModel.InventoryNumber)" Direction="SortDirection.Ascending"></GridSortColumn>
+                </GridSortColumns> 
+            </GridSortSettings>
+
+            <GridSelectionSettings Mode="Syncfusion.Blazor.Grids.SelectionMode.Both" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+
+            <GridEvents DataBound="DataBoundHandler" OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" TValue="InventoryModel" QueryCellInfo="CustomizeCell" RowDataBound="CustomizeRow" RowSelected="OnRowSelected" CellSelected="CellSelectedHandler"></GridEvents>
+
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+
+            <GridPageSettings PageSize="10"></GridPageSettings>
+
+            <GridColumns>
+               @*  <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="70px" AllowFiltering="false" Freeze="FreezeDirection.Left">
+                </GridColumn> *@
+
+                <GridColumn HeaderText="#" IsPrimaryKey="true" Field="@nameof(InventoryModel.InventoryNumber)" SortComparer="new InventoryNumberComparer()" Width="50px">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.InventoryNumber"></SfTextBox>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn Field="@nameof(InventoryModel.ImagePaths)" HeaderText="IMAGE" Width="230px" AllowFiltering="false" AllowSearching="false">
+                    <Template>
+                        @{
+                            var inventoryModel = context as InventoryModel;
+                            var imageUrls = inventoryModel?.ImagePaths ?? new List<string>();
+                        }
+                        <div class="flex space-x-4">
+                            @if (imageUrls.Count == 0)
+                            {
+                                <span class="font-alpino text-sm font-light">No Images Have been Uploaded.</span>
+                            }
+                            else
+                            {
+                                @foreach (var imageUrl in imageUrls)
+                                {
+                                    <div class="image">
+                                        <img class="w-12 h-12" src="@imageUrl" alt=""/>
+                                    </div>
+                                }
+                                <button @onclick="@(async () => OpenCarousel(imageUrls.ToArray()))" class=""><i class="fa-solid fa-expand text-indigo-600 text-md hover:scale-110 ease-in transition-all duration-300"></i></button>
+                            }
+                        </div>
+                    </Template>
+
+                    <EditTemplate>
+                        <div class="flex flex-col py-4 space-y-4">
+                            @{
+                                var inventoryModel = context as InventoryModel;
+                                var imageUrls = inventoryModel?.ImagePaths ?? new List<string>();
+                            }
+                            <div class="flex justify-center items-center space-x-4">
+                                @if (imageUrls.Count > 0)
+                                {
+                                    @foreach (var imageUrl in imageUrls)
+                                    {
+                                        <div class="flex flex-col justify-center items-center space-y-2">
+                                            <img class="w-12 h-12 @(selectedImageUrl == imageUrl ? "border border-red-500" : "")" alt="product-image" src="@imageUrl" @onclick="@(async () => ToggleImageSelection(imageUrl))" />
+                                            <button type="button" @onclick="@(async () => await RemoveImage(imageUrl, inventoryModel))">
+                                                <i class="fa-solid fa-xmark text-blue-500 text-lg hover:scale-105 ease-in transition-all duration-300"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p>No images uploaded</p>
+                                }
+                            </div>
+                            @if (imageUrls.Count >= 3)
+                            {
+                                <p class="text-xs flex flex-wrap text-red-500">You can only upload up to 3 images. <br> Please delete existing images before <br> adding new ones.</p>
+                            }
+                            else
+                            {
+                                <SfUploader ID="uploadFiles" AllowedExtensions=".jpg,.png,.jpeg" Multiple="false" MaxFileSize="10485760" @ref="Uploader">
+                                    <UploaderEvents ValueChange="@(args => CloudinaryImageUpload(args, inventoryModel))"></UploaderEvents>
+                                </SfUploader>
+                                <p class="text-xs folt-alpino font-light text-gray-500">Maximum file size allowed is 10 MB.</p>
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventoryModel.SelectedImagecolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            }
+                        </div>
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Manufacturer & Description" Field="@nameof(InventoryModel.NameFirstPart)" Width="250px">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.NameFirstPart"></SfTextBox>
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedNamecolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+                <GridColumn HeaderText="PN, SN, MODEL, ITEM #" Field="@nameof(InventoryModel.PinFirstPart)" Width="220px">
+                    <Template>
+                        @if (context is InventoryModel inventory)
+                        {
+                            string fullText = (context as InventoryModel).PinFirstPart;
+
+                            // Match either a date pattern (MM/dd/yy) or a specific word, like "Note"
+
+                            var pattern = @"(\d{1,2}/\d{1,2}/\d{2}|SN|MODEL|ITEM #)"; // Adjust "Note" to your desired word
+
+                            var matches = Regex.Matches(fullText, pattern);
+
+                            if (matches.Count > 0)
+                            {
+
+                                var lastIndex = 0; // To keep track of where we are in the string
+
+                                <div>
+                                    @foreach (Match match in matches)
+
+                                    {
+                                        // Get the part before the current match
+
+                                        var beforeDate = fullText.Substring(lastIndex, match.Index - lastIndex);
+
+                                        // Display the text before the date
+                                        @beforeDate
+                                        <br />
+                                        // Display the date as bold and add a line break after each date
+                                        <strong>@match.Value</strong>
+
+
+                                        // Update the last index to the end of the current match
+
+                                        lastIndex = match.Index + match.Length;
+                                    }
+
+                                    @fullText.Substring(lastIndex)
+                                </div>
+                            }
+                            else
+                            {
+
+                                // No date found, just display the text as-is
+                                <div>@fullText</div>
+                            }
+                        }
+                    </Template>
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.PinFirstPart"></SfTextBox>
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedPincolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Location" Field="@nameof(InventoryModel.LocationFirstPart)" Width="220px">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.LocationFirstPart"></SfTextBox>
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedLocationcolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+                <GridColumn HeaderText="FMS #, MRITS #" Field="@nameof(InventoryModel.MRITSFirstPart)" Width="220px">
+                    <Template>
+                        @if (context is InventoryModel inventory)
+                        {
+                            string fullText = (context as InventoryModel).MRITSFirstPart;
+
+                            // Match either a date pattern (MM/dd/yy) or a specific word, like "Note"
+
+                            var pattern = @"(\d{1,2}/\d{1,2}/\d{2}|MRITS|MRITS #)"; // Adjust "Note" to your desired word
+
+                            var matches = Regex.Matches(fullText, pattern);
+
+                            if (matches.Count > 0)
+                            {
+
+                                var lastIndex = 0; // To keep track of where we are in the string
+
+                                <div>
+                                    @foreach (Match match in matches)
+
+                                    {
+                                        // Get the part before the current match
+
+                                        var beforeDate = fullText.Substring(lastIndex, match.Index - lastIndex);
+
+                                        // Display the text before the date
+                                        @beforeDate
+                                        <br />
+                                        // Display the date as bold and add a line break after each date
+                                        <strong>@match.Value</strong>
+
+
+                                        // Update the last index to the end of the current match
+
+                                        lastIndex = match.Index + match.Length;
+                                    }
+
+                                    @fullText.Substring(lastIndex)
+                                </div>
+                            }
+                            else
+                            {
+
+                                // No date found, just display the text as-is
+                                <div>@fullText</div>
+                            }
+                        }
+                    </Template>
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.MRITSFirstPart"></SfTextBox>
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedPincolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Qty" Field="@nameof(InventoryModel.QtyFirstPart)" Width="70px">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.QtyFirstPart"></SfTextBox>
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedQtycolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Tag" Field="@nameof(InventoryModel.TagFirstPart)" Width="70px">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.TagFirstPart"></SfTextBox>
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedQtycolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+
+@*                 <GridColumn HeaderText="TAG" Field="@nameof(InventoryModel.SelectedTagcolor)" Width="150px">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.TagFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag color" DataSource="@color" @bind-Value="inventory.SelectedTagcolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag scope" DataSource="@scope" @bind-Value="inventory.SelectedTagScope">
+                                    <DropDownListFieldSettings Value="scope" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+ *@
+                @* <GridColumn HeaderText="BARCODE" Field="@nameof(InventoryModel.BarCodeFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.BarCodeFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedBarCodecolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn> *@
+
+                <GridColumn Field="@nameof(InventoryModel.StatusFirstPart)" HeaderText="Status / Notes" Width="500" >
+
+                    <Template>                        
+                        @if (context is InventoryModel inventory){
+
+                            string fullText = (context as InventoryModel).StatusFirstPart;
+
+                            // Match the date pattern (assuming date is in yyyy-MM-dd format)
+
+                            var datePattern = @"(\d{1,2}/\d{1,2}/\d{2})";
+                            var matches = Regex.Matches(fullText, datePattern);
+
+
+                            if (matches.Count > 0)
+                            {
+                                var lastIndex = 0; // To keep track of where we are in the string
+
+                                <div>
+                                    @foreach (Match match in matches)
+                                    {
+                                        // Get the part before the current match
+                                        var beforeDate = fullText.Substring(lastIndex, match.Index - lastIndex);
+
+                                        // Display the text before the date
+                                        @beforeDate
+                                        <br />
+                                        // Display the date as bold and add a line break after each date
+                                        <strong>@match.Value</strong>
+
+
+                                        // Update the last index to the end of the current match
+                                        lastIndex = match.Index + match.Length;
+                                    }
+
+
+                                    @fullText.Substring(lastIndex)
+                                </div>
+                            }
+                            else
+                            {
+                                // No date found, just display the text as-is
+                                <div>@fullText</div>
+                            }
+                        }
+                    </Template>
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="inventory.StatusFirstPart"></SfTextBox>
+                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedStatuscolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList> *@
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
+
+    </div>
+
+    <SfToast ID="InventoryToast" @ref="ToastObj" Timeout="2000">
+        <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+        <ToastAnimation Show="SlideBottomIn" Hide="SlideRightOut"></ToastAnimation>
+    </SfToast>
+
+
+
+</div>
+
+@code {
+    int Count { get; set; } = 0;
+    private string DialogButtonCaption { get; set; }
+    private SfUploader Uploader;
+    private string[] carouselImages = Array.Empty<string>();
+    private SfGrid<InventoryModel> SfInventoryGrid { get; set; }
+    private bool VisibleProp { get; set; } = false;
+    private List<InventoryModel> inventoryData = new();
+    public InventoryModel inventoryModel = new();
+    private List<string> toolbar = new List<string>();
+    private List<string> color = new List<string> { "Yellow", "Green", "Red", "Orange", "Blue", "Cyan", "Magenta", "None" };
+    private List<string> scope = new List<string> { "Row", "Cell" };
+    private int deleteId;
+    private ApplicationRoles permissions = new ApplicationRoles();
+    private bool hasDeletingAccessPermission;
+    private bool hasEditingAccessPermission;
+    private bool hasViewingAccessPermission;
+    private bool hasFullAccessPermission;
+    private bool hasAddingAccessPermission;
+    private string selectedImageUrl;
+    private List<string> tempImagePaths = new List<string>();
+    private bool isImageUploading = false;
+    private SfToast ToastObj;
+    private List<ToastModel> ToastModels { get; set; } = new List<ToastModel>();
+    private InventoryModel selectedMedicalInventoryModel;
+    private List<InventoryModel> selectedRecords = new List<InventoryModel>();
+    private string colorValue { get; set; } = "#FFFFFF";
+    private string colorValue1 { get; set; } = "#FFFFFF";
+
+    public void ValueChange(ColorPickerEventArgs args)
+    {
+        colorValue = args.CurrentValue.Hex;
+    }
+
+    public void ValueChange1(ColorPickerEventArgs args)
+    {
+        colorValue1 = args.CurrentValue.Hex;
+    }
+
+    public async Task CellSelectedHandler(CellSelectEventArgs<InventoryModel> args)
+    {
+        var rowindex = args.RowIndex;
+        var index = args.CellIndex;
+
+        await JS.InvokeVoidAsync("highlightcell", index, rowindex, colorValue1);
+    }
+
+
+
+    public class InventoryNumberComparer : IComparer<object>
+    {
+        public int Compare(object x, object y)
+        {
+            var xData = x as InventoryModel;
+            var yData = y as InventoryModel;
+
+            if (xData == null || yData == null) return 0;
+
+            int xValue, yValue;
+
+            // Attempt to parse the ShipName values as integers
+            bool isXNumeric = int.TryParse(xData.InventoryNumber, out xValue);
+            bool isYNumeric = int.TryParse(yData.InventoryNumber, out yValue);
+
+            if (isXNumeric && isYNumeric)
+            {
+                // Compare numerically if both are numbers
+                return xValue.CompareTo(yValue);
+            }
+            else if (isXNumeric)
+            {
+                // If only x is numeric, it comes before y
+                return -1;
+            }
+            else if (isYNumeric)
+            {
+                // If only y is numeric, it comes before x
+                return 1;
+            }
+            else
+            {
+                return string.Compare(xData.InventoryNumber, yData.InventoryNumber, StringComparison.Ordinal);
+            }
+        }
+    }
+
+
+
+    public async Task DataBoundHandler()
+    {
+        await RefreshTopScroll();
+    }
+
+    public async Task RefreshTopScroll()
+    {
+        await JS.InvokeVoidAsync("Scroll");
+    }
+    
+    private async Task DuplicateRecord(InventoryModel selectedInventory)
+    {
+        if (selectedInventory == null)
+        {
+            return;
+        }
+
+        string userId = await GetCurrentUserIdAsync();
+        string userName = await GetCurrentUserNameAsync();
+
+        var result = await InventoryService.DuplicateInventoryAsync(selectedInventory.Id);
+        if (result == (int)HttpStatusCode.OK)
+        {
+            await ShowToast($"Record Duplicated Successfully.", "success");
+            inventoryData = await InventoryService.GetInventoryAsync();
+
+            string crudOperationMessage = $"Record Duplicated in Medical Inventory";
+            await UserLogsService.LogActivityAsync(new UserLogsModel
+            {
+                UserId = userId,
+                UserName = userName,
+                CrudOperation = crudOperationMessage,
+            });
+
+            await SfInventoryGrid.Refresh();
+            //Console.WriteLine("Grid Refreshed");
+        }
+        else
+        {
+            await ShowToast($"Failed to Duplicate Record.", "error");
+        }
+    }
+
+    private async void OnRowSelected(RowSelectEventArgs<InventoryModel> args)
+    {
+        var rowIndex = args.RowIndex;
+
+        await JS.InvokeVoidAsync("highlightRow1", rowIndex, colorValue);
+
+        selectedMedicalInventoryModel = args.Data;
+        selectedRecords = await SfInventoryGrid.GetSelectedRecordsAsync();
+        //Console.WriteLine($"Selected Model: {selectedMedicalInventoryModel}");
+    }
+
+    private async Task<string> GetCurrentUserIdAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    private async Task<string> GetCurrentUserNameAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.Identity.Name;
+    }
+
+    private void ToggleImageSelection(string imageUrl)
+    {
+        if (selectedImageUrl == imageUrl)
+        {
+            selectedImageUrl = null;
+        }
+        else
+        {
+            selectedImageUrl = imageUrl;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        inventoryData = (await InventoryService.GetInventoryAsync()).ToList();
+        foreach (var item in inventoryData)
+        {
+            item.ParseTag();
+            item.ParseProperties();
+        }
+        await LoadPermissions();
+        SetupToolbar();
+
+        VisibleProp = true;
+
+        Console.WriteLine("Inventory data loaded: " + inventoryData.Count + " items.");
+    }
+
+    private void SetupToolbar()
+    {
+        toolbar.Clear();
+        if (hasAddingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Add");
+            toolbar.Add("Duplicate"); // Add the Duplicate button to the toolbar
+        }
+        if (hasEditingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Edit");
+            if (!isImageUploading)
+            {
+                toolbar.Add("Update");
+            }
+        }
+        if (hasDeletingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Delete");
+        }
+        if (hasAddingAccessPermission || hasEditingAccessPermission || hasFullAccessPermission)
+        {
+            toolbar.Add("Cancel");
+        }
+        toolbar.Add("Search");
+        toolbar.Add("ExcelExport");
+        toolbar.Add("PdfExport");
+    }
+
+    public void CustomizeCell(QueryCellInfoEventArgs<InventoryModel> args)
+    {
+        if (args?.Data == null || args.Column == null)
+        {
+            return;
+        }
+
+        void ApplyCellStyle(string selectedcolor)
+        {
+            if (string.IsNullOrEmpty(selectedcolor) || selectedcolor == "none")
+            {
+                return;
+            }
+
+            //Console.WriteLine($"Applying color {selectedcolor} to cell");
+
+            switch (selectedcolor)
+            {
+                case "Yellow":
+                    args.Cell.AddClass(new string[] { "color-yellow" });
+                    break;
+                case "Green":
+                    args.Cell.AddClass(new string[] { "color-green" });
+                    break;
+                case "Red":
+                    args.Cell.AddClass(new string[] { "color-red" });
+                    break;
+                case "Orange":
+                    args.Cell.AddClass(new string[] { "color-orange" });
+                    break;
+                case "Blue":
+                    args.Cell.AddClass(new string[] { "color-blue" });
+                    break;
+                case "Cyan":
+                    args.Cell.AddClass(new string[] { "color-cyan" });
+                    break;
+                case "Magenta":
+                    args.Cell.AddClass(new string[] { "color-magenta" });
+                    break;
+            }
+
+            // Debugging: Print a message indicating the color was applied
+            //Console.WriteLine($"Color {selectedcolor} applied to cell.");
+        }
+
+        // Apply the same logic for other entities
+        if (args.Column.Field == nameof(InventoryModel.SelectedTagcolor))
+        {
+            ApplyCellStyle(args.Data.SelectedTagcolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.ImagePaths))
+        {
+            ApplyCellStyle(args.Data.SelectedImagecolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.NameFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedNamecolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.QtyFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedQtycolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.PinFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedPincolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.LocationFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedLocationcolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.BarCodeFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedBarCodecolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.StatusFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedStatuscolor);
+        }
+        else if (args.Column.Field == nameof(InventoryModel.MRITSFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedMRITScolor);
+        }
+    }
+
+    public void CustomizeRow(RowDataBoundEventArgs<InventoryModel> args)
+    {
+        if (args?.Data == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(args.Data.SelectedTagScope) || args.Data.SelectedTagScope == "none")
+        {
+            return;
+        }
+
+        if (args.Data.SelectedTagScope == "Row")
+        {
+            if (string.IsNullOrEmpty(args.Data.SelectedTagcolor) || args.Data.SelectedTagcolor == "none")
+            {
+                return;
+            }
+
+            switch (args.Data.SelectedTagcolor)
+            {
+                case "Yellow":
+                    args.Row.AddClass(new string[] { "color-yellow" });
+                    break;
+                case "Green":
+                    args.Row.AddClass(new string[] { "color-green" });
+                    break;
+                case "Red":
+                    args.Row.AddClass(new string[] { "color-red" });
+                    break;
+                case "Orange":
+                    args.Row.AddClass(new string[] { "color-orange" });
+                    break;
+                case "Blue":
+                    args.Row.AddClass(new string[] { "color-blue" });
+                    break;
+                case "Cyan":
+                    args.Row.AddClass(new string[] { "color-cyan" });
+                    break;
+                case "Magenta":
+                    args.Row.AddClass(new string[] { "color-magenta" });
+                    break;
+            }
+        }
+    }
+
+    private async Task LoadPermissions()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var identityUser = await UserManager.GetUserAsync(user);
+            var roles = await UserManager.GetRolesAsync(identityUser);
+            var permissions = await GetPermissionsFromRoles(roles);
+
+            //Console.WriteLine($"User: {identityUser.UserName}, Permissions: {string.Join(", ", permissions)}");
+
+            hasFullAccessPermission = permissions.Contains("Full Access");
+            hasEditingAccessPermission = permissions.Contains("Inventory Edit");
+            hasAddingAccessPermission = permissions.Contains("Inventory Add");
+            hasDeletingAccessPermission = permissions.Contains("Inventory Delete");
+            hasViewingAccessPermission = permissions.Contains("Inventory View");
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task<List<string>> GetPermissionsFromRoles(IList<string> roles)
+    {
+        var permissions = new List<string>();
+        foreach (var role in roles)
+        {
+            var applicationRole = await RoleManager.FindByNameAsync(role);
+            if (applicationRole != null)
+            {
+                permissions.AddRange(applicationRole.Permissions);
+            }
+        }
+        return permissions.Distinct().ToList();
+    }
+
+    private async Task ShowToast(string message, string type)
+    {
+        var toastModel = new ToastModel
+        {
+            Content = message,
+            Icon = "e-layers",
+        };
+        ToastModels.Add(toastModel);
+        await ToastObj.ShowAsync(toastModel);
+    }
+
+    private async Task ActionBeginHandler(ActionEventArgs<InventoryModel> args)
+    {
+        try
+        {
+            string action = string.Empty;
+            string userId = await GetCurrentUserIdAsync();
+            string userName = await GetCurrentUserNameAsync();
+
+            if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+            {
+                if (args.Action == "Add" || args.Action == "Edit")
+                {
+                    List<string> finalImagePaths = new List<string>();
+
+                    if (args.Data.ImagePaths != null && args.Data.ImagePaths.Count > 0)
+                    {
+                        finalImagePaths.AddRange(args.Data.ImagePaths);
+                    }
+
+                    // Ensure only three images are stored
+                    int imagesToUpload = Math.Min(tempImagePaths.Count, 3 - finalImagePaths.Count);
+
+                    for (int i = 0; i < imagesToUpload; i++)
+                    {
+                        var tempPath = tempImagePaths[i];
+
+                        // Upload to Cloudinary
+                        using (var stream = new FileStream(tempPath, FileMode.Open))
+                        {
+                            var result = await InventoryService.UploadFileToCloudinaryAsync(stream, args.Data, i + 1);
+                            if (result != null)
+                            {
+                                finalImagePaths.Add(result);
+                                await ShowToast($"Image Uploaded Successfully to Cloudinary.", "success");
+                            }
+                            else
+                            {
+                                await ShowToast($"Failed to upload image to Cloudinary.", "error");
+                            }
+                        }
+                    }
+
+                    // Ensure only three image URLs are stored
+                    finalImagePaths = finalImagePaths.Take(3).ToList();
+                    args.Data.ImagePaths = finalImagePaths;
+                    tempImagePaths.Clear();
+
+                    // Log the final image paths before updating all properties
+                    Console.WriteLine($"Final Image Paths before UpdateAllProperties: {string.Join(",", args.Data.ImagePaths)}");
+
+                    // Update all properties before saving
+                    args.Data.UpdateAllProperties();
+
+                    // Log the image paths after updating all properties
+                    Console.WriteLine($"Image Paths after UpdateAllProperties: {string.Join(",", args.Data.ImagePaths)}");
+
+                    await InventoryService.AddOrUpdateInventoryAsync(args.Data);
+                    inventoryData = (await InventoryService.GetInventoryAsync()).ToList();
+
+                    // Extract current image URLs from the inventory model
+                    List<string> currentImageUrls = args.Data.ImagePaths ?? new List<string>();
+                    List<string> imagesToDelete = finalImagePaths.Except(currentImageUrls).ToList();
+
+                    // Log the values for debugging
+                    Console.WriteLine("Current Image URLs: " + string.Join(", ", currentImageUrls));
+                    Console.WriteLine("Final Image Paths: " + string.Join(", ", finalImagePaths));
+                    Console.WriteLine("ImagePaths to Delete: " + string.Join(", ", imagesToDelete));
+
+                    foreach (var imageUrl in imagesToDelete)
+                    {
+                        bool isDeletedFromCloudinary = await InventoryService.DeleteFileFromCloudinaryAsync(imageUrl);
+                        if (isDeletedFromCloudinary)
+                        {
+                            await ShowToast($"Image Deleted Successfully from Cloudinary", "success");
+                        }
+                        else
+                        {
+                            await ShowToast($"Failed to delete image from Cloudinary", "error");
+                        }
+                    }
+
+                    if (args.Action == "Add")
+                    {
+                        NavigationManager.NavigateTo("/MedicalInventory", true);
+                    }
+
+                    await ShowToast($"Record {args.Action}ed Successfully", "success");
+                }
+            }
+            else if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+            {
+                foreach (var record in selectedRecords)
+                {
+                    var deleteId = record.Id;
+                    await InventoryService.DeleteInventoryAsync(deleteId);
+
+                    if (record.ImagePaths != null && record.ImagePaths.Count > 0)
+                    {
+                        foreach (var imageUrl in record.ImagePaths)
+                        {
+                            bool isDeleted = await InventoryService.DeleteFileFromCloudinaryAsync(imageUrl);
+                            if (!isDeleted)
+                            {
+                                Console.WriteLine($"Failed to delete image from Cloudinary: {imageUrl}");
+                            }
+                        }
+                    }
+                }
+
+                await ShowToast("Records Deleted Successfully", "success");
+            }
+
+            if (args.Action != null)
+            {
+                if (args.Action == "Add")
+                {
+                    action = "Added";
+                }
+                else if (args.Action == "Edit")
+                {
+                    action = "Edited";
+                }
+                else if (args.Action == "Delete")
+                {
+                    action = "Deleted";
+                }
+                string crudOperationMessage = $"Record {action} in Medical Inventory";
+                await UserLogsService.LogActivityAsync(new UserLogsModel
+                {
+                    UserId = userId,
+                    UserName = userName,
+                    CrudOperation = crudOperationMessage,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred in ActionBeginHandler: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            await ShowToast("Operation failed", "error");
+        }
+    }
+
+    private async Task Save(MouseEventArgs args)
+    {
+        await SfInventoryGrid.EndEditAsync();
+        inventoryModel = await InventoryService.GetInventoryByIdAsync(inventoryModel.Id);
+    }
+
+    private async Task Cancel(MouseEventArgs args)
+    {
+        await SfInventoryGrid.CloseEditAsync();
+        inventoryModel = await InventoryService.GetInventoryByIdAsync(inventoryModel.Id);
+    }
+
+    public async Task TooBarBtnClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id.Contains("SfInventoryGrid_excelexport"))
+        {
+            ExcelExportProperties exportProperties = new ExcelExportProperties
+            {
+                FileName = $"MedicalInventory_{DateTime.Now:yyyyMMdd_HHmm}.xlsx" // Custom filename with timestamp
+            };
+            await SfInventoryGrid.ExportToExcelAsync(exportProperties);
+        }
+        else if (args.Item.Id.Contains("SfInventoryGrid_pdfexport"))
+        {
+            PdfExportProperties exportProperties = new PdfExportProperties
+            {
+                PageOrientation = Syncfusion.Blazor.Grids.PageOrientation.Landscape,
+                FileName = $"MedicalInventory_{DateTime.Now:yyyyMMdd_HHmm}.pdf" // Custom filename with timestamp
+            };
+            await SfInventoryGrid.ExportToPdfAsync(exportProperties);
+        }
+        else if (args.Item.Id.Contains("_Update"))
+        {
+            await SfInventoryGrid.EndEditAsync();
+        }
+        else if (args.Item.Text == "Duplicate")
+        {
+            var selectedInventory = (await SfInventoryGrid.GetSelectedRecordsAsync()).FirstOrDefault();
+            if (selectedInventory != null)
+            {
+                await DuplicateRecord(selectedInventory);
+            }
+        }
+    }
+
+    private void Change()
+    {
+        if (isImageUploading)
+        {
+            this.SfInventoryGrid.EnableToolbarItemsAsync(new List<string>() { "Update" }, false);
+        }
+        else
+        {
+            this.SfInventoryGrid.EnableToolbarItemsAsync(new List<string>() { "Update" }, true);
+        }
+    }
+
+    private async Task CloudinaryImageUpload(UploadChangeEventArgs args, InventoryModel inventory)
+    {
+        const long maxAllowedSize = 10485760; // 10 MB
+
+        try
+        {
+            if (args.Files != null && args.Files.Count > 0)
+            {
+                var file = args.Files[0];
+                using (var stream = file.File.OpenReadStream(maxAllowedSize))
+                {
+                    if (stream.Length > maxAllowedSize)
+                    {
+                        await ShowToast("File size exceeds the 10 MB limit.", "error");
+                        return;
+                    }
+
+                    // Upload to Cloudinary
+                    var result = await InventoryService.UploadFileToCloudinaryAsync(stream, inventory, 1);
+                    if (result != null)
+                    {
+                        // Add the new image URL to the inventory model
+                        inventory.AddImagePath(result);
+
+                        // Update the inventory model in memory, but do not save to the database yet
+                        await ShowToast($"Image Uploaded Successfully to Cloudinary.", "success");
+                    }
+                    else
+                    {
+                        await ShowToast($"Failed to upload image to Cloudinary.", "error");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowToast($"Error uploading file: {ex.Message}", "error");
+            Console.WriteLine($"Error uploading file: {ex}");
+        }
+    }
+
+    private async Task RemoveImage(string imageUrl, InventoryModel inventoryModel)
+    {
+        if (inventoryModel == null)
+        {
+            Console.WriteLine("Inventory model is null.");
+            return;
+        }
+
+        try
+        {
+            List<string> imageUrls = inventoryModel.ImagePaths ?? new List<string>();
+
+            if (imageUrls.Contains(imageUrl))
+            {
+                // Remove the image URL from the list
+                imageUrls.Remove(imageUrl);
+
+                // Ensure only three image URLs are stored
+                imageUrls = imageUrls.Take(3).ToList();
+                inventoryModel.ImagePaths = imageUrls;
+
+                // Call UpdateImages to reflect changes in _images
+                inventoryModel.UpdateImages();
+
+                // Persist changes to the database
+                await InventoryService.AddOrUpdateInventoryAsync(inventoryModel);
+                await ShowToast($"Image removed successfully.", "success");
+            }
+            else
+            {
+                await ShowToast($"Image URL not found in the inventory.", "error");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowToast($"Error removing image: {ex.Message}", "error");
+            Console.WriteLine($"Error removing image: {ex}");
+        }
+    }
+
+    private string GetDialogHeaderText(InventoryModel inventoryModel)
+    {
+        return inventoryModel?.Id == 0 ? "Add New Inventory" : $"Edit {inventoryModel.Name}";
+    }
+
+    private void OpenCarousel(string[] images)
+    {
+        carouselImages = images;
+        JS.InvokeVoidAsync("openModal");
+    }
+
+    public async Task ActionComplete(ActionEventArgs<Inventory> Args)
+    {
+        if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Reorder)
+        {
+            await RefreshTopScroll();
+        }
+        if (Args.RequestType == Syncfusion.Blazor.Grids.Action.ColumnState)
+        {
+            await SfInventoryGrid.Refresh();
+        }
+    }
+}
+
+<style>
+
+
+    #wrapper1 {
+        overflow-x: scroll;
+        overflow-y: hidden;
+        height: 20px;
+    }
+     /* Define the font size*/
+    .e-grid .e-headercelldiv {
+        font-size: 15px;
+    }
+
+    .e-grid .e-rowcell {
+        font-size: 20px;
+    }
+
+    /* Define color classes */
+    .color-yellow {
+        background-color: #F6FB7A;
+    }
+
+    .color-green {
+        background-color: #B4E380;
+    }
+
+    .color-red {
+        background-color: #FF6969;
+    }
+
+    .color-orange {
+        background-color: #FFD580;
+    }
+
+    .color-blue {
+        background-color: #ADD8E6;
+    }
+
+    .color-cyan {
+        background-color: #E0FFFF;
+    }
+
+    .color-magenta {
+        background-color: #FFB3FF;
+    }
+
+    /* Apply colors on row hover */
+    .e-grid .e-gridcontent .e-row:hover .e-rowcell.color-yellow {
+        background-color: #F6FB7A !important;
+    }
+
+    .e-grid .e-gridcontent .e-row:hover .e-rowcell.color-green {
+        background-color: #B4E380 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row:hover .e-rowcell.color-red {
+        background-color: #FF6969 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row:hover .e-rowcell.color-orange {
+        background-color: #FFD580 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row:hover .e-rowcell.color-blue {
+        background-color: #ADD8E6 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row:hover .e-rowcell.color-cyan {
+        background-color: #E0FFFF !important;
+    }
+
+    .e-grid .e-gridcontent .e-row:hover .e-rowcell.color-magenta {
+        background-color: #FFB3FF !important;
+    }
+
+    /* Apply colors when the row is selected */
+    .e-grid .e-gridcontent .e-row .e-rowcell.color-yellow.e-selectionbackground {
+        background-color: #F6FB7A !important;
+    }
+
+    .e-grid .e-gridcontent .e-row .e-rowcell.color-green.e-selectionbackground {
+        background-color: #B4E380 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row .e-rowcell.color-red.e-selectionbackground {
+        background-color: #FF6969 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row .e-rowcell.color-orange.e-selectionbackground {
+        background-color: #FFD580 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row .e-rowcell.color-blue.e-selectionbackground {
+        background-color: #ADD8E6 !important;
+    }
+
+    .e-grid .e-gridcontent .e-row .e-rowcell.color-cyan.e-selectionbackground {
+        background-color: #E0FFFF !important;
+    }
+
+    .e-grid .e-gridcontent .e-row .e-rowcell.color-magenta.e-selectionbackground {
+        background-color: #FFB3FF !important;
+    }
+
+</style>
+
+<div id="imageCarouselModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
+    <div class="bg-white p-6 rounded-lg w-3/4 h-3/4 mx-auto relative">
+        <span class="close cursor-pointer float-right hover:scale-105 ease-in transition-all duration-300" onclick="closeModal()"><i class="fa-regular fa-circle-xmark text-indigo-600 text-2xl"></i></span>
+        <div class="control-container flex justify-center items-center h-full">
+            <SfCarousel AnimationEffect="CarouselAnimationEffect.Fade">
+                @foreach (var image in carouselImages)
+                {
+                                        <CarouselItem>
+                                            <figure class="img-container mx-auto w-3/4 h-full p-6">
+                                                <img src="@image" alt="Image" class="w-full h-full object-contain" />
+                                            </figure>
+                                        </CarouselItem>
+                }
+            </SfCarousel>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('imageCarouselModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('imageCarouselModal').style.display = 'none';
+    }
+</script>

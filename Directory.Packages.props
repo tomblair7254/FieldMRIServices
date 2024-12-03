@@ -1,0 +1,32 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="AutoMapper" Version="13.0.1" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageVersion Include="CloudinaryDotNet" Version="1.26.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.11" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.6" />
+    <PackageVersion Include="Syncfusion.Blazor.Charts" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Diagram" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Grid" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Inputs" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Layouts" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Lists" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Notifications" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.RichTextEditor" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Schedule" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.Blazor.Themes" Version="27.2.4" />
+    <PackageVersion Include="Syncfusion.EJ2.AspNet.Core" Version="27.2.4" />
+  </ItemGroup>
+</Project>

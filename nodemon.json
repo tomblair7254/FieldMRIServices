@@ -1,0 +1,10 @@
+{
+	"watch": [
+		"Pages/**/*.razor",
+		"Shared/**/*.razor",
+		"Areas/**/*.cshtml",
+		"Views/**/*.cshtml"
+	],
+	"ext": "razor,cshtml",
+	"exec": "bun run build:css"
+}

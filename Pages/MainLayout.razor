@@ -1,0 +1,17 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>FieldMRIServices</PageTitle>
+
+<div>
+    <div>
+        <NavBar />
+    </div>
+
+    <main>
+<article class="px-6 sm:px-20 pt-12">            @Body
+        </article>
+    </main>
+</div>
