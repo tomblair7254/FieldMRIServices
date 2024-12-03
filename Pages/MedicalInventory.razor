@@ -364,7 +364,7 @@
                     </EditTemplate>
                 </GridColumn> *@
 
-                <GridColumn Field="@nameof(InventoryModel.StatusFirstPart)" HeaderText="Status / Notes" Width="500" >
+                <GridColumn Field="@nameof(InventoryModel.StatusFirstPart)" AllowSearching="false" HeaderText="Status / Notes" Width="500">
 
                     <Template>                        
                         @if (context is InventoryModel inventory){
