@@ -37,7 +37,7 @@
         <div id="wrapper1">
             <div id="div1"> </div>
         </div>
-        <SfGrid @ref="SfInventoryGrid" ID="SfInventoryGrid" DataSource="inventoryData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true" AllowMultiSorting="true" Toolbar="@toolbar">
+        <SfGrid @ref="SfInventoryGrid" Height="100%" ID="SfInventoryGrid" DataSource="inventoryData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true" AllowMultiSorting="true" Toolbar="@toolbar">
             <GridSearchSettings IgnoreCase="true"></GridSearchSettings>
          
            
@@ -69,7 +69,7 @@
 
             <GridSelectionSettings Mode="Syncfusion.Blazor.Grids.SelectionMode.Both" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 
-            <GridEvents DataBound="DataBoundHandler" OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" TValue="InventoryModel" QueryCellInfo="CustomizeCell" RowDataBound="CustomizeRow" RowSelected="OnRowSelected" CellSelected="CellSelectedHandler"></GridEvents>
+            <GridEvents DataBound="DataBoundHandler" Searching="BeforeSearchHandler"  OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" TValue="InventoryModel" QueryCellInfo="CustomizeCell" RowDataBound="CustomizeRow" RowSelected="OnRowSelected" CellSelected="CellSelectedHandler"></GridEvents>
 
             <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 
@@ -463,6 +463,12 @@
     private List<InventoryModel> selectedRecords = new List<InventoryModel>();
     private string colorValue { get; set; } = "#FFFFFF";
     private string colorValue1 { get; set; } = "#FFFFFF";
+
+    public async Task BeforeSearchHandler(SearchingEventArgs args)
+    {
+        args.SearchText = args.SearchText.Replace(":", "").Replace("/", "");
+    }
+
 
     public void ValueChange(ColorPickerEventArgs args)
     {
