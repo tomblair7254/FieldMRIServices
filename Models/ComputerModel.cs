@@ -96,7 +96,7 @@ namespace FieldMRIServices.Model
         }
 
         public string ComputerName { get; set; } = ",none,cell";
-        public string InventoryNumber { get; set; }
+        public string InventoryNumber { get; set; } = ",none,cell";
         public string Location { get; set; } = ",none,cell";
         public string Serial { get; set; } = ",none,cell";
         public string HardDrive { get; set; } = ",none,cell";
@@ -658,11 +658,11 @@ namespace FieldMRIServices.Model
                 (Status, color => SelectedStatuscolor = color),
                 (Qty, color => SelectedQtycolor = color),
                 (BarCodes, color => SelectedBarCodescolor = color),
-                (Pin, color => SelectedPincolor = color),
-                (Fiber, color => SelectedFibercolor = color),
-                (IEEE, color => SelectedIEEEcolor = color),
-                (Modisk, color => SelectedModiskcolor = color),
-                (SASRaid, color => SelectedSASRaidcolor = color)
+                //(Pin, color => SelectedPincolor = color),
+                //(Fiber, color => SelectedFibercolor = color),
+                //(IEEE, color => SelectedIEEEcolor = color),
+                //(Modisk, color => SelectedModiskcolor = color),
+                //(SASRaid, color => SelectedSASRaidcolor = color)
             };
 
             foreach (var (property, setColor) in properties)

@@ -302,7 +302,7 @@ namespace FieldMRIServices.Extensions.Services
                 computers = await _appDbContext.Computers
                     .Where(i => (isInt && i.Id == id) ||
                                 i.ComputerName.ToLower().Contains(lowerSearchTerm) ||
-                                i.InventoryNumber.ToLower().Contains(lowerSearchTerm) ||
+
                                 i.Location.ToLower().Contains(lowerSearchTerm) ||
                                 i.Serial.ToLower().Contains(lowerSearchTerm) ||
                                 i.HardDrive.ToLower().Contains(lowerSearchTerm) ||
