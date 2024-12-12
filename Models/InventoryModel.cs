@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.ComponentModel.DataAnnotations;
+using FieldMRIServices.SyncfusionSearch;
 
 namespace FieldMRIServices.Model
 {
@@ -411,5 +412,11 @@ namespace FieldMRIServices.Model
                 }
             }
         }
+        
+        public string SearchKeywords
+        {
+            get => this.ToSearchKeywords();
+            set => throw new NotSupportedException("You cannot set the search keywords.");
+        } 
     }
 }
