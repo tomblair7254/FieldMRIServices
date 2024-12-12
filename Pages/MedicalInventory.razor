@@ -13,6 +13,7 @@
 @using SixLabors.ImageSharp.Processing;
 @using System.Security.Claims
 @using System.Text.RegularExpressions
+@using FieldMRIServices.SyncfusionSearch
 
 @inject NavigationManager NavigationManager
 @inject IInventoryServices InventoryService
@@ -156,7 +157,7 @@
                     </EditTemplate>
                 </GridColumn>
 
-                <GridColumn HeaderText="Manufacturer & Description" Field="@nameof(InventoryModel.NameFirstPart)" Width="250px">
+                <GridColumn AllowSearching="false" HeaderText="Manufacturer & Description" Field="@nameof(InventoryModel.NameFirstPart)" Width="250px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
@@ -421,6 +422,15 @@
                         }
                     </EditTemplate>
                 </GridColumn>
+
+                <GridColumn CustomAttributes="@(new Dictionary<string, object>(){ { "style", "display: none;" }})" AllowSearching="true" ShowColumnMenu="false" ShowInColumnChooser="false" Field="@nameof(InventoryModel.SearchKeywords)">
+                    <EditTemplate Context="context">
+                        @if (context is InventoryModel inventory)
+                        {
+                            <SfTextBox Enabled="false" TValue="string" @bind-Value="inventory.SearchKeywords"></SfTextBox>
+                        }
+                    </EditTemplate>
+                </GridColumn>
             </GridColumns>
         </SfGrid>
 
@@ -463,13 +473,14 @@
     private List<InventoryModel> selectedRecords = new List<InventoryModel>();
     private string colorValue { get; set; } = "#FFFFFF";
     private string colorValue1 { get; set; } = "#FFFFFF";
-
+    
     public async Task BeforeSearchHandler(SearchingEventArgs args)
     {
-        args.SearchText = args.SearchText.Replace(":", "");
+        var normalizationProcess = NormalizeSearch.Default;
+        
+        args.SearchText = normalizationProcess(args.SearchText);;
     }
-
-
+    
     public void ValueChange(ColorPickerEventArgs args)
     {
         colorValue = args.CurrentValue.Hex;
