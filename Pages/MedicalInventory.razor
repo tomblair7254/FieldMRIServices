@@ -13,6 +13,7 @@
 @using SixLabors.ImageSharp.Processing;
 @using System.Security.Claims
 @using System.Text.RegularExpressions
+@using FieldMRIServices.Comparers
 @using FieldMRIServices.SyncfusionSearch
 
 @inject NavigationManager NavigationManager
@@ -25,12 +26,12 @@
 
 <PageTitle>Medical Inventory</PageTitle>
 <div>
-<h3 class="text-center text-4xl font-excon">FMS Medical Inventory</h3>
+<h3 class="text-center text-4xl font-excon">Medical Inventory</h3>
 
 
     <div>
-        <h6 style="background-color:#green;width:100px;margin-top:-40px;margin-left:80px;">Green Good</h6>
-        <h6 style="background-color:#F6FB7A; width:100px;margin-left:80px;"> Need Repair/Testing</h6>
+        <h6 style="background-color:#FFD580;width:100px;margin-top:-40px;margin-left:80px;">Green Good</h6>
+        <h6 style="background-color:#F6FB7A; width:100px;margin-left:80px;"> Need Repair</h6>
         <h6 style="background-color:#FF6969;width:100px ;margin-left:80px;">Red Bad</h6>
     </div>
 
@@ -43,6 +44,9 @@
          
            
                 <SfTextBox Placeholder="Row Color" Width="120px"></SfTextBox> 
+                <SfColorPicker Mode="ColorPickerMode.Palette" Value="@colorValue" ValueChange="ValueChange"></SfColorPicker>            
+           
+                <SfTextBox Placeholder="Cell Color" Width="120px"></SfTextBox>
                 <SfColorPicker Mode="ColorPickerMode.Palette" Value="@colorValue1" ValueChange="ValueChange1"></SfColorPicker>
            
 
@@ -61,7 +65,7 @@
                 <GridSortColumns>
 @*                     <GridSortColumn Field="@nameof(InventoryModel.Id)" Direction="SortDirection.Descending"></GridSortColumn>
  *@
-                    <GridSortColumn Field="@nameof(InventoryModel.InventoryNumber)" Direction="SortDirection.Descending"></GridSortColumn>
+                    <GridSortColumn Field="@nameof(InventoryModel.InventoryNumber)" Direction="SortDirection.Ascending"></GridSortColumn>
                 </GridSortColumns> 
             </GridSortSettings>
 
@@ -146,9 +150,9 @@
                                     <UploaderEvents ValueChange="@(args => CloudinaryImageUpload(args, inventoryModel))"></UploaderEvents>
                                 </SfUploader>
                                 <p class="text-xs folt-alpino font-light text-gray-500">Maximum file size allowed is 10 MB.</p>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventoryModel.SelectedImagecolor">
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventoryModel.SelectedImagecolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             }
                         </div>
                     </EditTemplate>
@@ -160,9 +164,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.NameFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedNamecolor">
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedNamecolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             </div>
                         }
                     </EditTemplate>
@@ -220,9 +224,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.PinFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedPincolor">
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedPincolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             </div>
                         }
                     </EditTemplate>
@@ -234,9 +238,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.LocationFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedLocationcolor">
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedLocationcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             </div>
                         }
                     </EditTemplate>
@@ -294,9 +298,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.MRITSFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedPincolor">
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedPincolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             </div>
                         }
                     </EditTemplate>
@@ -308,30 +312,30 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.QtyFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedQtycolor">
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedQtycolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             </div>
                         }
                     </EditTemplate>
                 </GridColumn>
 
-                <GridColumn HeaderText="Tag" AllowSearching="false" Field="@nameof(InventoryModel.TagFirstPart)" Width="70px">
+                <GridColumn HeaderText="Tag" Field="@nameof(InventoryModel.TagFirstPart)" Width="70px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.TagFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedQtycolor">
+                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedQtycolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             </div>
                         }
                     </EditTemplate>
                 </GridColumn>
 
 
-                <GridColumn HeaderText="TAG" Field="@nameof(InventoryModel.SelectedTagcolor)" Width="150px">
+@*                 <GridColumn HeaderText="TAG" Field="@nameof(InventoryModel.SelectedTagcolor)" Width="150px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
@@ -347,7 +351,7 @@
                         }
                     </EditTemplate>
                 </GridColumn>
-
+ *@
                 @* <GridColumn HeaderText="BARCODE" Field="@nameof(InventoryModel.BarCodeFirstPart)" Width="120px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
@@ -412,9 +416,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.StatusFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedStatuscolor">
+                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedStatuscolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
+                                </SfDropDownList> *@
                             </div>
                         }
                     </EditTemplate>
@@ -424,7 +428,9 @@
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
-                            <SfTextBox Enabled="false" TValue="string" @bind-Value="inventory.SearchKeywords"></SfTextBox>
+                            <div>
+                                @inventory.SearchKeywords
+                            </div>
                         }
                     </EditTemplate>
                 </GridColumn>
@@ -495,47 +501,6 @@
 
         await JS.InvokeVoidAsync("highlightcell", index, rowindex, colorValue1);
     }
-
-
-
-    public class InventoryNumberComparer : IComparer<object>
-    {
-        public int Compare(object x, object y)
-        {
-            var xData = x as InventoryModel;
-            var yData = y as InventoryModel;
-
-            if (xData == null || yData == null) return 0;
-
-            int xValue, yValue;
-
-            // Attempt to parse the ShipName values as integers
-            bool isXNumeric = int.TryParse(xData.InventoryNumber, out xValue);
-            bool isYNumeric = int.TryParse(yData.InventoryNumber, out yValue);
-
-            if (isXNumeric && isYNumeric)
-            {
-                // Compare numerically if both are numbers
-                return xValue.CompareTo(yValue);
-            }
-            else if (isXNumeric)
-            {
-                // If only x is numeric, it comes before y
-                return -1;
-            }
-            else if (isYNumeric)
-            {
-                // If only y is numeric, it comes before x
-                return 1;
-            }
-            else
-            {
-                return string.Compare(xData.InventoryNumber, yData.InventoryNumber, StringComparison.Ordinal);
-            }
-        }
-    }
-
-
 
     public async Task DataBoundHandler()
     {

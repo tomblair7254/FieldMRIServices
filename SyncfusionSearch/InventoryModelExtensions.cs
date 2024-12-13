@@ -13,7 +13,6 @@ public static class InventoryModelExtensions
 
         keywords.Add(normalizationProcess(inventoryModel.NameFirstPart));
         keywords.Add(normalizationProcess(inventoryModel.PinFirstPart) );
-        keywords.Add(normalizationProcess(inventoryModel.StatusFirstPart));
         keywords.Add(normalizationProcess(inventoryModel.LocationFirstPart));
         
         return string.Join(" ", keywords);
