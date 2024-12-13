@@ -23,10 +23,10 @@
 @inject IJSRuntime JS
 
 <div>
-    <h3 class="text-center text-4xl font-excon">Computer Inventory</h3>
+    <h3 class="text-center text-4xl font-excon">FMS Computer Inventory</h3>
     <div>
-        <h6 style="background-color:#FFD580;width:100px;margin-top:-40px;margin-left:80px;">Green Good</h6>
-        <h6 style="background-color:#F6FB7A; width:100px;margin-left:80px;"> Need Repair</h6>
+        <h6 style="background-color:green;width:100px;margin-top:-40px;margin-left:80px;">Green Good</h6>
+        <h6 style="background-color:#F6FB7A; width:100px;margin-left:80px;"> Need Repair/Testing</h6>
         <h6 style="background-color:#FF6969;width:100px ;margin-left:80px;">Red Bad</h6>
     </div>
 
@@ -140,9 +140,9 @@
                                     <UploaderEvents ValueChange="@(args => CloudinaryImageUpload(args, computerModel))"></UploaderEvents>
                                 </SfUploader>
                                 <p class="text-xs font-alpino font-light text-gray-500">Max file size: 10MB</p>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computerModel.SelectedImagecolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computerModel.SelectedImagecolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             }
                         </div>
                     </EditTemplate>
@@ -153,9 +153,9 @@
                         {
                             <div class="flex-column flex-col space-y-4 flex-wrap">
                                 <SfTextBox Tvalue="string" @bind-Value="computer.ComputerNameFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedComputerNamecolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedComputerNamecolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
 
@@ -217,9 +217,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.PinFirstPart"></SfTextBox>
-                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPincolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPincolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -232,9 +232,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.LocationFirstPart"></SfTextBox>
-                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedLocationcolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedLocationcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -246,9 +246,9 @@
                         {
                             <div class="flex-column flex-col space-y-4 flex-wrap">
                                 <SfTextBox Tvalue="string" @bind-Value="computer.MritsFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMritscolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMritscolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
 
@@ -256,15 +256,15 @@
 
                 </GridColumn>
 
-                <GridColumn HeaderText="Qty" Field="@nameof(ComputerModel.QtyFirstPart)" Width="70px">
+                <GridColumn HeaderText="Qty" Field="@nameof(ComputerModel.QtyFirstPart)" Width="100px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.QtyFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedQtycolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedQtycolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -276,15 +276,15 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedQtycolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedQtycolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
                 </GridColumn>
 
-@*                 <GridColumn HeaderText="TAG" Field="@nameof(ComputerModel.SelectedTagcolor)" Width="150px">
+                <GridColumn HeaderText="TAG" Field="@nameof(ComputerModel.SelectedTagcolor)" Width="150px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
@@ -300,7 +300,7 @@
                         }
                     </EditTemplate>
                 </GridColumn>
- *@
+
 
                 <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
                     <EditTemplate Context="context">
@@ -308,9 +308,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.VideoFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedVideocolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedVideocolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -322,9 +322,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.NetworkFirstPart"></SfTextBox>
-                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedNetworkcolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedNetworkcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -336,9 +336,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.MemoryFirstPart"></SfTextBox>
-                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMemorycolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMemorycolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -350,9 +350,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.PlayerFirstPart"></SfTextBox>
-                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPlayercolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPlayercolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -364,9 +364,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.HardDriveFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedHardDrivecolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedHardDrivecolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -379,9 +379,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.FiberFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedFibercolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedFibercolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -393,9 +393,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.IEEEFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedIEEEcolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedIEEEcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -407,9 +407,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.SASRaidFirstPart"></SfTextBox>
-                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSASRaidcolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSASRaidcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
@@ -421,9 +421,9 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.SCSIFirstPart"></SfTextBox>
-                                @* <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSCSIcolor">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSCSIcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList> *@
+                                </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
