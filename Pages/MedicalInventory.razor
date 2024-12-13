@@ -26,13 +26,13 @@
 
 <PageTitle>Medical Inventory</PageTitle>
 <div>
-<h3 class="text-center text-4xl font-excon">Medical Inventory</h3>
+<h3 class="text-center text-4xl font-excon">FMS Inventory</h3>
 
 
     <div>
-        <h6 style="background-color:#FFD580;width:100px;margin-top:-40px;margin-left:80px;">Green Good</h6>
-        <h6 style="background-color:#F6FB7A; width:100px;margin-left:80px;"> Need Repair</h6>
-        <h6 style="background-color:#FF6969;width:100px ;margin-left:80px;">Red Bad</h6>
+        <h6 style="background-color:#FFD580;width:160px;margin-top:-40px;margin-left:80px;">Green Good</h6>
+        <h6 style="background-color:#F6FB7A; width:160px;margin-left:80px;"> Need Repair/Testing</h6>
+        <h6 style="background-color:#FF6969;width:160px ;margin-left:80px;">Red Bad</h6>
     </div>
 
     <div class="flex flex-col justify-center m-0 py-12">
@@ -41,13 +41,6 @@
         </div>
         <SfGrid @ref="SfInventoryGrid" Height="100%" ID="SfInventoryGrid" DataSource="inventoryData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true" AllowMultiSorting="true" Toolbar="@toolbar">
             <GridSearchSettings IgnoreCase="true"></GridSearchSettings>
-         
-           
-                <SfTextBox Placeholder="Row Color" Width="120px"></SfTextBox> 
-                <SfColorPicker Mode="ColorPickerMode.Palette" Value="@colorValue" ValueChange="ValueChange"></SfColorPicker>            
-           
-                <SfTextBox Placeholder="Cell Color" Width="120px"></SfTextBox>
-                <SfColorPicker Mode="ColorPickerMode.Palette" Value="@colorValue1" ValueChange="ValueChange1"></SfColorPicker>
            
 
             <GridEditSettings Mode="EditMode.Normal" AllowAdding="true" ShowDeleteConfirmDialog="true" AllowEditing="true" AllowDeleting="true">
