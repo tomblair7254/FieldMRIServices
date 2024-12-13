@@ -416,7 +416,7 @@ namespace FieldMRIServices.Model
         public string SearchKeywords
         {
             get => this.ToSearchKeywords();
-            set => throw new NotSupportedException("You cannot set the search keywords.");
+            set => _ = value;
         } 
     }
 }
