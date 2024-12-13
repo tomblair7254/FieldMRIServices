@@ -64,7 +64,7 @@
 
             <GridSelectionSettings Mode="Syncfusion.Blazor.Grids.SelectionMode.Both" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 
-            <GridEvents DataBound="DataBoundHandler" Searching="BeforeSearchHandler"  OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" TValue="InventoryModel" QueryCellInfo="CustomizeCell" RowDataBound="CustomizeRow" RowSelected="OnRowSelected" CellSelected="CellSelectedHandler"></GridEvents>
+            <GridEvents DataBound="DataBoundHandler" Searching="BeforeSearchHandler"  OnToolbarClick="TooBarBtnClickHandler" OnActionBegin="ActionBeginHandler" TValue="InventoryModel" QueryCellInfo="CustomizeCell" RowDataBound="CustomizeRow" ></GridEvents>
 
             <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 
@@ -299,7 +299,7 @@
                     </EditTemplate>
                 </GridColumn>
 
-                <GridColumn HeaderText="Qty" Field="@nameof(InventoryModel.QtyFirstPart)" Width="70px">
+                <GridColumn HeaderText="Qty" Field="@nameof(InventoryModel.QtyFirstPart)" Width="100px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
@@ -313,7 +313,7 @@
                     </EditTemplate>
                 </GridColumn>
 
-                <GridColumn HeaderText="Tag" Field="@nameof(InventoryModel.TagFirstPart)" Width="70px">
+@*                 <GridColumn HeaderText="Tag" Field="@nameof(InventoryModel.TagFirstPart)" Width="70px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
@@ -326,18 +326,19 @@
                         }
                     </EditTemplate>
                 </GridColumn>
+ *@
 
 
                 <GridColumn HeaderText="TAG" Field="@nameof(InventoryModel.SelectedTagcolor)" Width="150px">
                     <EditTemplate Context="context">
-                        @if (context is InventoryModel inventory)
+                        @if (context is InventoryModel computer)
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="inventory.TagFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag color" DataSource="@color" @bind-Value="inventory.SelectedTagcolor">
+                                <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag color" DataSource="@color" @bind-Value="computer.SelectedTagcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
                                 </SfDropDownList>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag scope" DataSource="@scope" @bind-Value="inventory.SelectedTagScope">
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag scope" DataSource="@scope" @bind-Value="computer.SelectedTagScope">
                                     <DropDownListFieldSettings Value="scope" Text="Text"></DropDownListFieldSettings>
                                 </SfDropDownList>
                             </div>
@@ -477,23 +478,23 @@
         args.SearchText = normalizationProcess(args.SearchText);;
     }
     
-    public void ValueChange(ColorPickerEventArgs args)
-    {
-        colorValue = args.CurrentValue.Hex;
-    }
+    // public void ValueChange(ColorPickerEventArgs args)
+    // {
+    //     colorValue = args.CurrentValue.Hex;
+    // }
 
-    public void ValueChange1(ColorPickerEventArgs args)
-    {
-        colorValue1 = args.CurrentValue.Hex;
-    }
+    // public void ValueChange1(ColorPickerEventArgs args)
+    // {
+    //     colorValue1 = args.CurrentValue.Hex;
+    // }
 
-    public async Task CellSelectedHandler(CellSelectEventArgs<InventoryModel> args)
-    {
-        var rowindex = args.RowIndex;
-        var index = args.CellIndex;
+    // public async Task CellSelectedHandler(CellSelectEventArgs<InventoryModel> args)
+    // {
+    //     var rowindex = args.RowIndex;
+    //     var index = args.CellIndex;
 
-        await JS.InvokeVoidAsync("highlightcell", index, rowindex, colorValue1);
-    }
+    //     await JS.InvokeVoidAsync("highlightcell", index, rowindex, colorValue1);
+    // }
 
     public async Task DataBoundHandler()
     {
