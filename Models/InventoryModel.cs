@@ -1,10 +1,11 @@
 ﻿#nullable enable
 using System.ComponentModel.DataAnnotations;
+using FieldMRIServices.Model.Abstractions;
 using FieldMRIServices.SyncfusionSearch;
 
 namespace FieldMRIServices.Model
 {
-    public class InventoryModel
+    public class InventoryModel : ISortableModel
     {
         public int Id { get; set; }
 

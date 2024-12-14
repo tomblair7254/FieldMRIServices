@@ -1,7 +1,9 @@
 ﻿#nullable enable
+using FieldMRIServices.Model.Abstractions;
+
 namespace FieldMRIServices.Model
 {
-    public class ComputerModel
+    public class ComputerModel : ISortableModel
     {
         public int Id { get; set; }
         private string _images;
