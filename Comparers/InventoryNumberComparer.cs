@@ -1,43 +1,35 @@
-using FieldMRIServices.Model;
+using FieldMRIServices.Model.Abstractions;
 
 namespace FieldMRIServices.Comparers;
 
 public class InventoryNumberComparer : IComparer<object>
 {
-    public int Compare(object x, object y)
+    public int Compare(object xObj, object yObj)
     {
-        if (x is not InventoryModel xData)
+        var x = xObj as ISortableModel;
+        var y = yObj as ISortableModel;
+        
+        if (x is null && y is null)
         {
             return 0;
         }
 
-        if (y is not InventoryModel yData)
+        if (x is null)
         {
-            return 0;
+            return 1;
         }
 
-        // Attempt to parse the ShipName values as integers
-        bool isXNumeric = int.TryParse(xData.InventoryNumber, out var xValue);
-        bool isYNumeric = int.TryParse(yData.InventoryNumber, out var yValue);
-
-        if (isXNumeric && isYNumeric)
+        if (y is null)
         {
-            // Compare numerically if both are numbers
-            return xValue.CompareTo(yValue);
-        }
-
-        if (isXNumeric)
-        {
-            // If only x is numeric, it comes before y
             return -1;
         }
 
-        if (isYNumeric)
+        if (int.TryParse(x.InventoryNumber, out var xValue) &&
+            int.TryParse(y.InventoryNumber, out var yValue))
         {
-            // If only y is numeric, it comes before x
-            return 1;
+            return xValue.CompareTo(yValue);
         }
-            
-        return string.Compare(xData.InventoryNumber, yData.InventoryNumber, StringComparison.Ordinal);
+        
+        return string.Compare(x.InventoryNumber, y.InventoryNumber, StringComparison.Ordinal);
     }
 }

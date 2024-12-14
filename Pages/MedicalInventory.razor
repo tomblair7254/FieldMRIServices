@@ -36,12 +36,8 @@
     </div>
 
     <div class="flex flex-col justify-center m-0 py-12">
-        <div id="wrapper1">
-            <div id="div1"> </div>
-        </div>
         <SfGrid @ref="SfInventoryGrid" Height="100%" ID="SfInventoryGrid" DataSource="inventoryData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true" AllowMultiSorting="true" Toolbar="@toolbar">
             <GridSearchSettings IgnoreCase="true"></GridSearchSettings>
-           
 
             <GridEditSettings Mode="EditMode.Normal" AllowAdding="true" ShowDeleteConfirmDialog="true" AllowEditing="true" AllowDeleting="true">
                 <HeaderTemplate>
@@ -69,9 +65,8 @@
             <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 
             <GridPageSettings PageSize="10"></GridPageSettings>
-
             <GridColumns>
-               @*  <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="70px" AllowFiltering="false" Freeze="FreezeDirection.Left">
+                @*  <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="70px" AllowFiltering="false" Freeze="FreezeDirection.Left">
                 </GridColumn> *@
 
                 <GridColumn HeaderText="#" IsPrimaryKey="true" Field="@nameof(InventoryModel.InventoryNumber)" SortComparer="new InventoryNumberComparer()" Width="50px">
@@ -429,6 +424,7 @@
                     </EditTemplate>
                 </GridColumn>
             </GridColumns>
+            
         </SfGrid>
 
     </div>
@@ -1206,7 +1202,6 @@
     .e-grid .e-gridcontent .e-row .e-rowcell.color-magenta.e-selectionbackground {
         background-color: #FFB3FF !important;
     }
-
 </style>
 
 <div id="imageCarouselModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
