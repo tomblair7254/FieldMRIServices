@@ -1,6 +1,6 @@
 namespace FieldMRIServices.Model.Abstractions;
 
-public class ISortableModel
+public interface ISortableModel
 {
     public string InventoryNumber { get; set; }
 }
