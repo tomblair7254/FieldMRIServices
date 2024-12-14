@@ -36,12 +36,8 @@
     </div>
 
     <div class="flex flex-col justify-center m-0 py-12">
-        <div id="wrapper1">
-            <div id="div1"> </div>
-        </div>
         <SfGrid @ref="SfInventoryGrid" Height="100%" ID="SfInventoryGrid" DataSource="inventoryData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true" AllowMultiSorting="true" Toolbar="@toolbar">
             <GridSearchSettings IgnoreCase="true"></GridSearchSettings>
-         
            
                 <SfTextBox Placeholder="Row Color" Width="120px"></SfTextBox> 
                 <SfColorPicker Mode="ColorPickerMode.Palette" Value="@colorValue" ValueChange="ValueChange"></SfColorPicker>            
@@ -76,9 +72,8 @@
             <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 
             <GridPageSettings PageSize="10"></GridPageSettings>
-
             <GridColumns>
-               @*  <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="70px" AllowFiltering="false" Freeze="FreezeDirection.Left">
+                @*  <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="70px" AllowFiltering="false" Freeze="FreezeDirection.Left">
                 </GridColumn> *@
 
                 <GridColumn HeaderText="#" IsPrimaryKey="true" Field="@nameof(InventoryModel.InventoryNumber)" SortComparer="new InventoryNumberComparer()" Width="50px">
@@ -335,7 +330,7 @@
                 </GridColumn>
 
 
-@*                 <GridColumn HeaderText="TAG" Field="@nameof(InventoryModel.SelectedTagcolor)" Width="150px">
+                @*                 <GridColumn HeaderText="TAG" Field="@nameof(InventoryModel.SelectedTagcolor)" Width="150px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
@@ -416,7 +411,7 @@
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="inventory.StatusFirstPart"></SfTextBox>
-                               @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedStatuscolor">
+                                @*  <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="inventory.SelectedStatuscolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
                                 </SfDropDownList> *@
                             </div>
@@ -435,6 +430,7 @@
                     </EditTemplate>
                 </GridColumn>
             </GridColumns>
+            
         </SfGrid>
 
     </div>
@@ -1212,7 +1208,6 @@
     .e-grid .e-gridcontent .e-row .e-rowcell.color-magenta.e-selectionbackground {
         background-color: #FFB3FF !important;
     }
-
 </style>
 
 <div id="imageCarouselModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
