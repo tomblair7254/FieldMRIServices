@@ -292,7 +292,7 @@ div#Grid_dialogEdit_wrapper {
 .e-grid .e-content {
 	overflow-x: scroll !important;
 	scrollbar-width: thin !important;
-	scrollbar-color: #0a53be transparent !important;;
+	scrollbar-color: #0a53be transparent !important;
 }
 
 .e-grid .e-content::-webkit-scrollbar {
@@ -302,13 +302,10 @@ div#Grid_dialogEdit_wrapper {
 .e-grid .e-content::-webkit-scrollbar-thumb {
 	background: #0a53be !important;;
 	border-radius: 6px !important;;
+	border: 2px solid #0a53be;
 }
 
 .e-grid .e-content::-webkit-scrollbar-thumb:hover {
 	background: #555 !important;;
-}
-
-.e-grid .e-content::-webkit-scrollbar-track {
-	background: transparent !important;;
 }
 /* Scroll bar settings end */
