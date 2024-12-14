@@ -267,7 +267,7 @@
                     </EditTemplate>
                 </GridColumn>
 
-@*                 <GridColumn HeaderText="Tag" Field="@nameof(ComputerModel.TagFirstPart)" Width="70px">
+                @*                 <GridColumn HeaderText="Tag" Field="@nameof(ComputerModel.TagFirstPart)" Width="70px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
@@ -426,7 +426,7 @@
                     </EditTemplate>
                 </GridColumn>
 
-@*                 <GridColumn HeaderText="Bar Codes" Field="@nameof(ComputerModel.BarCodesFirstPart)" Width="120px">
+                @*                 <GridColumn HeaderText="Bar Codes" Field="@nameof(ComputerModel.BarCodesFirstPart)" Width="120px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
@@ -505,6 +505,9 @@
         <ToastAnimation Show="SlideBottomIn" Hide="SlideRightOut"></ToastAnimation>
     </SfToast>
 </div>
+
+<link href="css/customScrollPlugin.css" rel="stylesheet" />
+<script src="js/customScrollPlugin.js" defer async></script>
 
 @code {
     int Count { get; set; } = 0;

@@ -26,7 +26,7 @@
 
 <PageTitle>Medical Inventory</PageTitle>
 <div>
-<h3 class="text-center text-4xl font-excon">FMS Inventory</h3>
+    <h3 class="text-center text-4xl font-excon">FMS Inventory</h3>
 
 
     <div>
@@ -52,7 +52,7 @@
 
             <GridSortSettings>
                 <GridSortColumns>
-@*                     <GridSortColumn Field="@nameof(InventoryModel.Id)" Direction="SortDirection.Descending"></GridSortColumn>
+                    @*                     <GridSortColumn Field="@nameof(InventoryModel.Id)" Direction="SortDirection.Descending"></GridSortColumn>
  *@
                     <GridSortColumn Field="@nameof(InventoryModel.InventoryNumber)" Direction="SortDirection.Ascending"></GridSortColumn>
                 </GridSortColumns> 
@@ -308,7 +308,7 @@
                     </EditTemplate>
                 </GridColumn>
 
-@*                 <GridColumn HeaderText="Tag" Field="@nameof(InventoryModel.TagFirstPart)" Width="70px">
+                @*                 <GridColumn HeaderText="Tag" Field="@nameof(InventoryModel.TagFirstPart)" Width="70px">
                     <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
@@ -433,10 +433,11 @@
         <ToastPosition X="Right" Y="Bottom"></ToastPosition>
         <ToastAnimation Show="SlideBottomIn" Hide="SlideRightOut"></ToastAnimation>
     </SfToast>
-
-
-
+    
 </div>
+
+<link href="css/customScrollPlugin.css" rel="stylesheet" />
+<script src="js/customScrollPlugin.js" defer async></script>
 
 @code {
     int Count { get; set; } = 0;
@@ -473,6 +474,7 @@
         
         args.SearchText = normalizationProcess(args.SearchText);;
     }
+    
     
     // public void ValueChange(ColorPickerEventArgs args)
     // {
