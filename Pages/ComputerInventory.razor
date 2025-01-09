@@ -50,7 +50,7 @@
                 </FooterTemplate>
             </GridEditSettings>
 
-          
+
 
             <GridSortSettings>
                 <GridSortColumns>
@@ -72,221 +72,225 @@
                 <GridColumn HeaderText="#" Field="@nameof(ComputerModel.InventoryNumber)" SortComparer="new InventoryNumberComparer()" Width="50px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.InventoryNumber"></SfTextBox>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-                <GridColumn Field="@nameof(ComputerModel.ImagePaths)" HeaderText="IMAGE" Width="230px" AllowFiltering="false" AllowSearching="false">
-                    <Template>
-                        @{
-                            var computerModel = context as ComputerModel;
-                            var imageUrls = computerModel?.ImagePaths ?? new List<string>();
-                        }
-                        <div class="flex space-x-4">
-                            @if (imageUrls.Count == 0)
-                            {
-                                <span class="font-alpino text-base font-light">No Images Have been Uploaded.</span>
-                            }
-                            else
-                            {
-                                @foreach (var imageUrl in imageUrls)
-                                {
-                                    <div class="image">
-                                        <img class="w-12 h-12" src="@imageUrl" alt=""/>
-                                    </div>
-                                }
-                                <button @onclick="@(async () => OpenCarousel(imageUrls.ToArray()))" class=""><i class="fa-solid fa-expand text-indigo-600 text-md hover:scale-110 ease-in transition-all duration-300"></i></button>
-                            }
-                        </div>
-                    </Template>
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.InventoryNumber"></SfTextBox>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
+        <GridColumn Field="@nameof(ComputerModel.ImagePaths)" HeaderText="IMAGE" Width="230px" AllowFiltering="false" AllowSearching="false">
+          <Template>
+            @{
+              var computerModel = context as ComputerModel;
+              var imageUrls = computerModel?.ImagePaths ?? new List<string>();
+            }
+            <div class="flex space-x-4">
+              @if (imageUrls.Count == 0)
+              {
+                <span class="font-alpino text-base font-light">No Images Have been Uploaded.</span>
+              }
+              else
+              {
+                @foreach (var imageUrl in imageUrls)
+                {
+                  <div class="image">
+                    <img class="w-12 h-12" src="@imageUrl" alt=""/>
+                  </div>
+                }
+                <button @onclick="@(async () => OpenCarousel(imageUrls.ToArray()))" class=""><i class="fa-solid fa-expand text-indigo-600 text-md hover:scale-110 ease-in transition-all duration-300"></i></button>
+              }
+            </div>
+          </Template>
 
-                    <EditTemplate>
-                        <div class="flex flex-col py-4 space-y-4">
-                            @{
-                                var computerModel = context as ComputerModel;
-                                var imageUrls = computerModel?.ImagePaths ?? new List<string>();
-                            }
-                            <div class="flex justify-center items-center space-x-4">
-                                @if (imageUrls.Count > 0)
-                                {
-                                    @foreach (var imageUrl in imageUrls)
-                                    {
-                                        <div class="flex flex-col justify-center items-center space-y-2">
-                                            <img class="w-12 h-12 @(selectedImageUrl == imageUrl ? "border border-red-500" : "")" alt="product-image" src="@imageUrl" @onclick="@(async () => ToggleImageSelection(imageUrl))" />
-                                            <button type="button" @onclick="@(async () => await RemoveImage(imageUrl, computerModel))">
-                                                <i class="fa-solid fa-xmark text-blue-500 text-lg hover:scale-105 ease-in transition-all duration-300"></i>
-                                            </button>
-                                        </div>
-                                    }
-                                }
-                                else
-                                {
-                                    <p>No images uploaded</p>
-                                }
-                            </div>
-                            @if (imageUrls.Count >= 3)
-                            {
-                                <p class="text-xs flex flex-wrap text-red-500">You can only upload up to 3 images. <br> Please delete existing images before <br> adding new ones.</p>
-                            }
-                            else
-                            {
-                                <SfUploader ID="uploadFiles" AllowedExtensions=".jpg,.png,.jpeg" Multiple="false" MaxFileSize="10485760" @ref="Uploader">
-                                    <UploaderEvents ValueChange="@(args => CloudinaryImageUpload(args, computerModel))"></UploaderEvents>
-                                </SfUploader>
-                                <p class="text-xs font-alpino font-light text-gray-500">Max file size: 10MB</p>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computerModel.SelectedImagecolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            }
-                        </div>
-                    </EditTemplate>
-                </GridColumn>
-                <GridColumn HeaderText="Manufacturer & Description" Field="@nameof(ComputerModel.ComputerNameFirstPart)" Width="250px">
+          <EditTemplate>
+            <div class="flex flex-col py-4 space-y-4">
+              @{
+                var computerModel = context as ComputerModel;
+                var imageUrls = computerModel?.ImagePaths ?? new List<string>();
+              }
+              <div class="flex justify-center items-center space-x-4">
+                @if (imageUrls.Count > 0)
+                {
+                  @foreach (var imageUrl in imageUrls)
+                  {
+                    <div class="flex flex-col justify-center items-center space-y-2">
+                      <img class="w-12 h-12 @(selectedImageUrl == imageUrl ? "border border-red-500" : "")" alt="product-image" src="@imageUrl" @onclick="@(async () => ToggleImageSelection(imageUrl))" />
+                      <button type="button" @onclick="@(async () => await RemoveImage(imageUrl, computerModel))">
+                        <i class="fa-solid fa-xmark text-blue-500 text-lg hover:scale-105 ease-in transition-all duration-300"></i>
+                      </button>
+                    </div>
+                  }
+                }
+                else
+                {
+                  <p>No images uploaded</p>
+                }
+              </div>
+              @if (imageUrls.Count >= 3)
+              {
+                <p class="text-xs flex flex-wrap text-red-500">You can only upload up to 3 images. <br> Please delete existing images before <br> adding new ones.</p>
+              }
+              else
+              {
+                <SfUploader ID="uploadFiles" AllowedExtensions=".jpg,.png,.jpeg" Multiple="false" MaxFileSize="10485760" @ref="Uploader">
+                  <UploaderEvents ValueChange="@(args => CloudinaryImageUpload(args, computerModel))"></UploaderEvents>
+                </SfUploader>
+                <p class="text-xs font-alpino font-light text-gray-500">Max file size: 10MB</p>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computerModel.SelectedImagecolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              }
+            </div>
+          </EditTemplate>
+        </GridColumn>
+
+        <GridColumn HeaderText="Manufacturer & Description" Field="@nameof(ComputerModel.ComputerNameFirstPart)" Width="250px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex-column flex-col space-y-4 flex-wrap">
+                <SfTextBox Tvalue="string" @bind-Value="computer.ComputerNameFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedComputerNamecolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+
+          </EditTemplate>
+        </GridColumn>
+
+        <GridColumn HeaderText="PN, SN, MODEL, ITEM #" Field="@nameof(ComputerModel.PinFirstPart)" Width="220px">
+          <Template>
+
+            @{
+              string fullText = (context as ComputerModel).PinFirstPart;
+
+              // Match the date pattern (assuming date is in yyyy-MM-dd format)
+              var datePattern = @"(\d{1,2}/\d{1,2}/\d{2}|SN|MODEL|ITEM #)";
+              var matches = Regex.Matches(fullText, datePattern);
+
+
+              if (matches.Count > 0)
+              {
+
+                var lastIndex = 0; // To keep track of where we are in the string
+
+                <div>
+                  @foreach (Match match in matches)
+                  {
+
+                    // Get the part before the current match
+
+                    var beforeDate = fullText.Substring(lastIndex, match.Index - lastIndex);
+
+
+
+                    // Display the text before the date
+                    @beforeDate
+                    <br />
+                    // Display the date as bold and add a line break after each date
+                    <strong>@match.Value</strong>
+
+
+                    // Update the last index to the end of the current match
+
+                    lastIndex = match.Index + match.Length;
+                  }
+
+
+                  @fullText.Substring(lastIndex)
+                </div>
+              }
+              else
+              {
+
+                // No date found, just display the text as-is
+                <div>@fullText</div>
+              }
+            }
+          </Template>
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.PinFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPincolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
+
+
+        <GridColumn HeaderText="Location" Field="@nameof(ComputerModel.LocationFirstPart)" Width="250px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.LocationFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedLocationcolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
+
+        <GridColumn HeaderText="FMS" Field="@nameof(ComputerModel.MritsFirstPart)" Width="250px">
+          <EditTemplate Context ="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex-column flex-col space-y-4 flex-wrap">
+                <SfTextBox Tvalue="string" @bind-Value="computer.MritsFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMritscolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+
+          </EditTemplate>
+
+        </GridColumn>
+
+        <GridColumn HeaderText="Qty" Field="@nameof(ComputerModel.QtyFirstPart)" Width="100px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.QtyFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedQtycolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
+
+        <GridColumn HeaderText="Tag" Field="@nameof(ComputerModel.TagFirstPart)" Width="100px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedTagcolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag scope" DataSource="@scope" @bind-Value="computer.SelectedTagScope">
+                  <DropDownListFieldSettings Value="scope" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
+
+        @*                 <GridColumn HeaderText="TAG" Field="@nameof(ComputerModel.SelectedTagcolor)" Width="150px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
-                            <div class="flex-column flex-col space-y-4 flex-wrap">
-                                <SfTextBox Tvalue="string" @bind-Value="computer.ComputerNameFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedComputerNamecolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-
-                    </EditTemplate>
-                </GridColumn>
-
-                <GridColumn HeaderText="PN, SN, MODEL, ITEM #" Field="@nameof(ComputerModel.PinFirstPart)" Width="220px">
-                    <Template>
-
-                        @{
-                            string fullText = (context as ComputerModel).PinFirstPart;
-
-                            // Match the date pattern (assuming date is in yyyy-MM-dd format)
-                            var datePattern = @"(\d{1,2}/\d{1,2}/\d{2}|SN|MODEL|ITEM #)";
-                            var matches = Regex.Matches(fullText, datePattern);
-
-
-                            if (matches.Count > 0)
-                            {
-
-                                var lastIndex = 0; // To keep track of where we are in the string
-
-                                <div>
-                                    @foreach (Match match in matches)
-                                    {
-
-                                        // Get the part before the current match
-
-                                        var beforeDate = fullText.Substring(lastIndex, match.Index - lastIndex);
-
-
-
-                                        // Display the text before the date
-                                        @beforeDate
-                                        <br />
-                                        // Display the date as bold and add a line break after each date
-                                        <strong>@match.Value</strong>
-
-
-                                        // Update the last index to the end of the current match
-
-                                        lastIndex = match.Index + match.Length;
-                                    }
-
-
-                                    @fullText.Substring(lastIndex)
-                                </div>
-                            }
-                            else
-                            {
-
-                                // No date found, just display the text as-is
-                                <div>@fullText</div>
-                            }
-                        }
-                    </Template>
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
                             <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.PinFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPincolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-
-
-                <GridColumn HeaderText="location" Field="@nameof(ComputerModel.LocationFirstPart)" Width="250px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.LocationFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedLocationcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-
-                <GridColumn HeaderText="FMS" Field="@nameof(ComputerModel.MritsFirstPart)" Width="250px">
-                    <EditTemplate Context ="context">
-                        @if(context is ComputerModel computer)
-                        {
-                            <div class="flex-column flex-col space-y-4 flex-wrap">
-                                <SfTextBox Tvalue="string" @bind-Value="computer.MritsFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMritscolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-
-                    </EditTemplate>
-
-                </GridColumn>
-
-                <GridColumn HeaderText="Qty" Field="@nameof(ComputerModel.QtyFirstPart)" Width="100px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.QtyFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedQtycolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-
-                @*                 <GridColumn HeaderText="Tag" Field="@nameof(ComputerModel.TagFirstPart)" Width="70px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedQtycolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
- *@
-                <GridColumn HeaderText="TAG" Field="@nameof(ComputerModel.SelectedTagcolor)" Width="150px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox>
+                                <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox> 
                                 <SfDropDownList TValue="string" TItem="string" Placeholder="Tag color" DataSource="@color" @bind-Value="computer.SelectedTagcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
                                 </SfDropDownList>
@@ -296,137 +300,137 @@
                             </div>
                         }
                     </EditTemplate>
-                </GridColumn>
+    </GridColumn> *@
 
 
-                <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.VideoFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedVideocolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.VideoFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedVideocolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                <GridColumn HeaderText="Network" Field="@nameof(ComputerModel.NetworkFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.NetworkFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedNetworkcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="Network" Field="@nameof(ComputerModel.NetworkFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.NetworkFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedNetworkcolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                <GridColumn HeaderText="Memory" Field="@nameof(ComputerModel.MemoryFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.MemoryFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMemorycolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="Memory" Field="@nameof(ComputerModel.MemoryFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.MemoryFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMemorycolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                <GridColumn HeaderText="Player" Field="@nameof(ComputerModel.PlayerFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.PlayerFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPlayercolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="Player" Field="@nameof(ComputerModel.PlayerFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.PlayerFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPlayercolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                <GridColumn HeaderText="Hard Drive" Field="@nameof(ComputerModel.HardDriveFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.HardDriveFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedHardDrivecolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="Hard Drive" Field="@nameof(ComputerModel.HardDriveFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.HardDriveFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedHardDrivecolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
 
-                <GridColumn HeaderText="Fiber" Field="@nameof(ComputerModel.FiberFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.FiberFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedFibercolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="Fiber" Field="@nameof(ComputerModel.FiberFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.FiberFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedFibercolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                <GridColumn HeaderText="IEEE" Field="@nameof(ComputerModel.IEEEFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.IEEEFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedIEEEcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="IEEE" Field="@nameof(ComputerModel.IEEEFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.IEEEFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedIEEEcolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                <GridColumn HeaderText="SAS Raid" Field="@nameof(ComputerModel.SASRaidFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.SASRaidFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSASRaidcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="SAS Raid" Field="@nameof(ComputerModel.SASRaidFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.SASRaidFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSASRaidcolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                <GridColumn HeaderText="SCSI" Field="@nameof(ComputerModel.SCSIFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.SCSIFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSCSIcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
+        <GridColumn HeaderText="SCSI" Field="@nameof(ComputerModel.SCSIFirstPart)" Width="120px">
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.SCSIFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSCSIcolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
 
-                @*                 <GridColumn HeaderText="Bar Codes" Field="@nameof(ComputerModel.BarCodesFirstPart)" Width="120px">
+        @*                 <GridColumn HeaderText="Bar Codes" Field="@nameof(ComputerModel.BarCodesFirstPart)" Width="120px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
@@ -440,369 +444,377 @@
                     </EditTemplate>
                 </GridColumn>
  *@
-                <GridColumn Field="@nameof(ComputerModel.StatusFirstPart)" AllowSearching="false" HeaderText="Status / Notes" Width="500">
+        <GridColumn Field="@nameof(ComputerModel.StatusFirstPart)" AllowSearching="false" HeaderText="Status / Notes" Width="500">
 
-                    <Template>
+          <Template>
 
-                        @{
-                            string fullText = (context as ComputerModel).StatusFirstPart;
+            @{
+              string fullText = (context as ComputerModel).StatusFirstPart;
 
-                            // Match the date pattern (assuming date is in yyyy-MM-dd format)
-                            var datePattern = @"(\d{1,2}/\d{1,2}/\d{2})";
-                            var matches = Regex.Matches(fullText, datePattern);
-
-
-                            if (matches.Count > 0)
-                            {
-                                var lastIndex = 0; // To keep track of where we are in the string
-
-                                <div>
-                                    @foreach (Match match in matches)
-                                    {
-                                        // Get the part before the current match
-                                        var beforeDate = fullText.Substring(lastIndex, match.Index - lastIndex);
-
-                                        // Display the text before the date
-                                        @beforeDate
-                                        <br />
-                                        // Display the date as bold and add a line break after each date
-                                        <strong>@match.Value</strong>
+              // Match the date pattern (assuming date is in yyyy-MM-dd format)
+              var datePattern = @"(\d{1,2}/\d{1,2}/\d{2})";
+              var matches = Regex.Matches(fullText, datePattern);
 
 
-                                        // Update the last index to the end of the current match
-                                        lastIndex = match.Index + match.Length;
-                                    }
+              if (matches.Count > 0)
+              {
+                var lastIndex = 0; // To keep track of where we are in the string
+
+                <div>
+                  @foreach (Match match in matches)
+                  {
+                    // Get the part before the current match
+                    var beforeDate = fullText.Substring(lastIndex, match.Index - lastIndex);
+
+                    // Display the text before the date
+                    @beforeDate
+                    <br />
+                    // Display the date as bold and add a line break after each date
+                    <strong>@match.Value</strong>
 
 
-                                    @fullText.Substring(lastIndex)
-                                </div>
-                            }
-                            else
-                            {
-                                // No date found, just display the text as-is
-                                <div>@fullText</div>
-                            }
-                        }
-                    </Template>
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.StatusFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedStatuscolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-            </GridColumns>
-        </SfGrid>
-    </div>
+                    // Update the last index to the end of the current match
+                    lastIndex = match.Index + match.Length;
+                  }
 
-    <SfToast ID="InventoryToast" @ref="ToastObj" Timeout="2000">
-        <ToastPosition X="Right" Y="Bottom"></ToastPosition>
-        <ToastAnimation Show="SlideBottomIn" Hide="SlideRightOut"></ToastAnimation>
-    </SfToast>
+
+                  @fullText.Substring(lastIndex)
+                </div>
+              }
+              else
+              {
+                // No date found, just display the text as-is
+                <div>@fullText</div>
+              }
+            }
+          </Template>
+          <EditTemplate Context="context">
+            @if (context is ComputerModel computer)
+            {
+              <div class="flex flex-col space-y-4 flex-wrap">
+                <SfTextBox TValue="string" @bind-Value="computer.StatusFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedStatuscolor">
+                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                </SfDropDownList>
+              </div>
+            }
+          </EditTemplate>
+        </GridColumn>
+      </GridColumns>
+    </SfGrid>
+  </div>
+
+  <SfToast ID="InventoryToast" @ref="ToastObj" Timeout="2000">
+    <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+    <ToastAnimation Show="SlideBottomIn" Hide="SlideRightOut"></ToastAnimation>
+  </SfToast>
 </div>
 
 <link href="css/customScrollPlugin.css" rel="stylesheet" />
 <script src="js/customScrollPlugin.js" defer async></script>
 
 @code {
-    int Count { get; set; } = 0;
-    private string DialogButtonCaption { get; set; }
-    private SfUploader Uploader;
-    private string[] carouselImages = Array.Empty<string>();
-    private SfGrid<ComputerModel> SfComputerGrid { get; set; }
-    private bool VisibleProp { get; set; } = false;
-    private List<ComputerModel> computerData = new();
-    public ComputerModel ComputerModel = new();
-    private List<string> toolbar = new List<string>();
-    private List<string> color = new List<string> { "Yellow", "Green", "Red", "Orange", "Blue", "Cyan", "Magenta", "None" };
-    private List<string> scope = new List<string> { "Row", "Cell" };
-    private int deleteId;
-    private List<string> imageUrls = new List<string>();
-    private List<string> tempImagePaths = new List<string>();
-    private bool isImageUploading = false;
-    private ApplicationRoles permissions = new ApplicationRoles();
-    private bool hasDeletingAccessPermission;
-    private bool hasEditingAccessPermission;
-    private bool hasViewingAccessPermission;
-    private bool hasFullAccessPermission;
-    private bool hasAddingAccessPermission;
-    private ComputerModel selectedComputerInventoryModel;
-    private List<ComputerModel> selectedRecords = new List<ComputerModel>();
-    private string selectedImageUrl;
-    private string colorValue { get; set; } = "#FFFFFF";
-    private string colorValue1 { get; set; } = "#FFFFFF";
+  int Count { get; set; } = 0;
+  private string DialogButtonCaption { get; set; }
+  private SfUploader Uploader;
+  private string[] carouselImages = Array.Empty<string>();
+  private SfGrid<ComputerModel> SfComputerGrid { get; set; }
+  private bool VisibleProp { get; set; } = false;
+  private List<ComputerModel> computerData = new();
+  public ComputerModel ComputerModel = new();
+  private List<string> toolbar = new List<string>();
+  private List<string> color = new List<string> { "Yellow", "Green", "Red", "Orange", "Blue", "Cyan", "Magenta", "None" };
+  private List<string> scope = new List<string> { "Row", "Cell" };
+  private int deleteId;
+  private List<string> imageUrls = new List<string>();
+  private List<string> tempImagePaths = new List<string>();
+  private bool isImageUploading = false;
+  private ApplicationRoles permissions = new ApplicationRoles();
+  private bool hasDeletingAccessPermission;
+  private bool hasEditingAccessPermission;
+  private bool hasViewingAccessPermission;
+  private bool hasFullAccessPermission;
+  private bool hasAddingAccessPermission;
+  private ComputerModel selectedComputerInventoryModel;
+  private List<ComputerModel> selectedRecords = new List<ComputerModel>();
+  private string selectedImageUrl;
+  private string colorValue { get; set; } = "#FFFFFF";
+  private string colorValue1 { get; set; } = "#FFFFFF";
 
-    public async Task BeforeSearchHandler(SearchingEventArgs args)
+  public async Task BeforeSearchHandler(SearchingEventArgs args)
+  {
+    args.SearchText = args.SearchText.Replace(":", "");
+  }
+
+  public void ValueChange(ColorPickerEventArgs args)
+  {
+    colorValue = args.CurrentValue.Hex;
+  }
+
+  public void ValueChange1(ColorPickerEventArgs args)
+  {
+    colorValue1 = args.CurrentValue.Hex;
+  }
+
+  public async Task CellSelectedHandler(CellSelectEventArgs<ComputerModel> args)
+  {
+    var rowindex = args.RowIndex;
+    var index = args.CellIndex;
+
+    await JS.InvokeVoidAsync("highlightcell", index, rowindex, colorValue1);
+  }
+
+  private async void OnRowSelected(RowSelectEventArgs<ComputerModel> args)
+  {
+    var rowIndex = args.RowIndex;
+
+    await JS.InvokeVoidAsync("highlightRow1", rowIndex, colorValue);
+    selectedComputerInventoryModel = args.Data;
+    selectedRecords = await SfComputerGrid.GetSelectedRecordsAsync();
+    //Console.WriteLine($"Selected Computer Model: {selectedComputerInventoryModel}");
+  }
+
+  private void ToggleImageSelection(string imageUrl)
+  {
+    if (selectedImageUrl == imageUrl)
     {
-        args.SearchText = args.SearchText.Replace(":", "");
+      selectedImageUrl = null;
+    }
+    else
+    {
+      selectedImageUrl = imageUrl;
+    }
+  }
+  public async Task DataBoundHandler()
+  {
+    await RefreshTopScroll();
+  }
+
+  public async Task RefreshTopScroll()
+  {
+    await JS.InvokeVoidAsync("Scroll");
+  }
+  private async Task DuplicateRecord(ComputerModel selectedComputerInventory)
+  {
+    if (selectedComputerInventory == null)
+    {
+      return;
     }
 
-    public void ValueChange(ColorPickerEventArgs args)
+    string userId = await GetCurrentUserIdAsync();
+    string userName = await GetCurrentUserNameAsync();
+
+    var result = await ComputerService.DuplicateComputerAsync(selectedComputerInventory.Id);
+    if (result == (int)HttpStatusCode.OK)
     {
-        colorValue = args.CurrentValue.Hex;
-    }
+      await ShowToast($"Record Duplicated Successfully.", "success");
 
-    public void ValueChange1(ColorPickerEventArgs args)
-    {
-        colorValue1 = args.CurrentValue.Hex;
-    }
-
-    public async Task CellSelectedHandler(CellSelectEventArgs<ComputerModel> args)
-    {
-        var rowindex = args.RowIndex;
-        var index = args.CellIndex;
-
-        await JS.InvokeVoidAsync("highlightcell", index, rowindex, colorValue1);
-    }
-
-    private async void OnRowSelected(RowSelectEventArgs<ComputerModel> args)
-    {
-        var rowIndex = args.RowIndex;
-
-        await JS.InvokeVoidAsync("highlightRow1", rowIndex, colorValue);
-        selectedComputerInventoryModel = args.Data;
-        selectedRecords = await SfComputerGrid.GetSelectedRecordsAsync();
-        //Console.WriteLine($"Selected Computer Model: {selectedComputerInventoryModel}");
-    }
-
-    private void ToggleImageSelection(string imageUrl)
-    {
-        if (selectedImageUrl == imageUrl)
-        {
-            selectedImageUrl = null;
-        }
-        else
-        {
-            selectedImageUrl = imageUrl;
-        }
-    }
-    public async Task DataBoundHandler()
-    {
-        await RefreshTopScroll();
-    }
-
-    public async Task RefreshTopScroll()
-    {
-        await JS.InvokeVoidAsync("Scroll");
-    }
-    private async Task DuplicateRecord(ComputerModel selectedComputerInventory)
-    {
-        if (selectedComputerInventory == null)
-        {
-            return;
-        }
-        
-        string userId = await GetCurrentUserIdAsync();
-        string userName = await GetCurrentUserNameAsync();
-
-        var result = await ComputerService.DuplicateComputerAsync(selectedComputerInventory.Id);
-        if (result == (int)HttpStatusCode.OK)
-        {
-            await ShowToast($"Record Duplicated Successfully.", "success");
-
-            string crudOperationMessage = $"Record Duplicated in Computer Inventory";
-            await UserLogsService.LogActivityAsync(new UserLogsModel
+      string crudOperationMessage = $"Record Duplicated in Computer Inventory";
+      await UserLogsService.LogActivityAsync(new UserLogsModel
             {
                 UserId = userId,
                 UserName = userName,
                 CrudOperation = crudOperationMessage,
             });
 
-            computerData = await ComputerService.GetComputerAsync();
-            await SfComputerGrid.Refresh();
-            //Console.WriteLine("Grid Refreshed");
-        }
-        else
-        {
-            await ShowToast($"Failed to Duplicate Record.", "error");
-        }
+      computerData = await ComputerService.GetComputerAsync();
+      await SfComputerGrid.Refresh();
+      //Console.WriteLine("Grid Refreshed");
+    }
+    else
+    {
+      await ShowToast($"Failed to Duplicate Record.", "error");
+    }
+  }
+
+  private async Task<string> GetCurrentUserIdAsync()
+  {
+    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    var user = authState.User;
+    return user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+  }
+
+  private async Task<string> GetCurrentUserNameAsync()
+  {
+    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    var user = authState.User;
+    return user.Identity.Name;
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    computerData = (await ComputerService.GetComputerAsync()).ToList();
+    foreach (var item in computerData)
+    {
+      item.ParseTag();
+      item.ParseProperties(); // Parse other properties as well
+    }
+    await LoadPermissions();
+    SetupToolbar();
+
+    VisibleProp = true;
+
+    //Console.WriteLine("computer data loaded: " + computerData.Count + " items.");
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      await JS.InvokeVoidAsync("setPageTitle", "Computer Inventory");
+    }
+  }
+
+  private void SetupToolbar()
+  {
+    toolbar.Clear();
+    if (hasAddingAccessPermission || hasFullAccessPermission)
+    {
+      toolbar.Add("Add");
+      toolbar.Add("Duplicate"); // Add the Duplicate button to the toolbar
+    }
+    if (hasEditingAccessPermission || hasFullAccessPermission)
+    {
+      toolbar.Add("Edit");
+      if (!isImageUploading)
+      {
+        toolbar.Add("Update");
+      }
+    }
+    if (hasDeletingAccessPermission || hasFullAccessPermission)
+    {
+      toolbar.Add("Delete");
+    }
+    if (hasAddingAccessPermission || hasEditingAccessPermission || hasFullAccessPermission)
+    {
+      toolbar.Add("Cancel");
+    }
+    toolbar.Add("Search");
+    toolbar.Add("ExcelExport");
+    toolbar.Add("PdfExport");
+  }
+
+  private void UpdateTag(ComputerModel computer)
+  {
+    computer.UpdateTag();
+  }
+
+  public void CustomizeCell(QueryCellInfoEventArgs<ComputerModel> args)
+  {
+    if (args?.Data == null || args.Column == null)
+    {
+      return;
     }
 
-    private async Task<string> GetCurrentUserIdAsync()
+    void ApplyCellStyle(string selectedcolor)
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        return user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+      if (string.IsNullOrEmpty(selectedcolor) || selectedcolor == "none")
+      {
+        return;
+      }
+
+      //Console.WriteLine($"Applying color {selectedcolor} to cell");
+
+      switch (selectedcolor)
+      {
+        case "Yellow":
+          args.Cell.AddClass(new string[] { "color-yellow" });
+          break;
+        case "Green":
+          args.Cell.AddClass(new string[] { "color-green" });
+          break;
+        case "Red":
+          args.Cell.AddClass(new string[] { "color-red" });
+          break;
+        case "Orange":
+          args.Cell.AddClass(new string[] { "color-orange" });
+          break;
+        case "Blue":
+          args.Cell.AddClass(new string[] { "color-blue" });
+          break;
+        case "Cyan":
+          args.Cell.AddClass(new string[] { "color-cyan" });
+          break;
+        case "Magenta":
+          args.Cell.AddClass(new string[] { "color-magenta" });
+          break;
+      }
+      // Debugging: Print a message indicating the color was applied
+      // Console.WriteLine($"Color {selectedcolor} applied to cell.");
     }
 
-    private async Task<string> GetCurrentUserNameAsync()
+    if (args.Column.Field == nameof(ComputerModel.TagFirstPart))
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        return user.Identity.Name;
+      ApplyCellStyle(args.Data.SelectedTagcolor);
     }
-
-    protected override async Task OnInitializedAsync()
+    else if (args.Column.Field == nameof(ComputerModel.ImagePaths))
     {
-        computerData = (await ComputerService.GetComputerAsync()).ToList();
-        foreach (var item in computerData)
-        {
-            item.ParseTag();
-            item.ParseProperties(); // Parse other properties as well
-        }
-        await LoadPermissions();
-        SetupToolbar();
-
-        VisibleProp = true;
-        
-        //Console.WriteLine("computer data loaded: " + computerData.Count + " items.");
+      ApplyCellStyle(args.Data.SelectedImagecolor);
     }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    else if (args.Column.Field == nameof(ComputerModel.LocationFirstPart))
     {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("setPageTitle", "Computer Inventory");
-        }
+      ApplyCellStyle(args.Data.SelectedLocationcolor);
     }
-
-    private void SetupToolbar()
+    else if (args.Column.Field == nameof(ComputerModel.ComputerNameFirstPart))
     {
-        toolbar.Clear();
-        if (hasAddingAccessPermission || hasFullAccessPermission)
-        {
-            toolbar.Add("Add");
-            toolbar.Add("Duplicate"); // Add the Duplicate button to the toolbar
-        }
-        if (hasEditingAccessPermission || hasFullAccessPermission)
-        {
-            toolbar.Add("Edit");
-            if (!isImageUploading)
-            {
-                toolbar.Add("Update");
-            }
-        }
-        if (hasDeletingAccessPermission || hasFullAccessPermission)
-        {
-            toolbar.Add("Delete");
-        }
-        if (hasAddingAccessPermission || hasEditingAccessPermission || hasFullAccessPermission)
-        {
-            toolbar.Add("Cancel");
-        }
-        toolbar.Add("Search");
-        toolbar.Add("ExcelExport");
-        toolbar.Add("PdfExport");
+      ApplyCellStyle(args.Data.SelectedComputerNamecolor);
     }
-
-    private void UpdateTag(ComputerModel computer)
+    else if (args.Column.Field == nameof(ComputerModel.QtyFirstPart))
     {
-        computer.UpdateTag();
+      ApplyCellStyle(args.Data.SelectedQtycolor);
     }
-
-    public void CustomizeCell(QueryCellInfoEventArgs<ComputerModel> args)
+    else if (args.Column.Field == nameof(ComputerModel.PinFirstPart))
     {
-        if (args?.Data == null || args.Column == null)
-        {
-            return;
-        }
-
-        void ApplyCellStyle(string selectedcolor)
-        {
-            if (string.IsNullOrEmpty(selectedcolor) || selectedcolor == "none")
-            {
-                return;
-            }
-
-            //Console.WriteLine($"Applying color {selectedcolor} to cell");
-
-            switch (selectedcolor)
-            {
-                case "Yellow":
-                    args.Cell.AddClass(new string[] { "color-yellow" });
-                    break;
-                case "Green":
-                    args.Cell.AddClass(new string[] { "color-green" });
-                    break;
-                case "Red":
-                    args.Cell.AddClass(new string[] { "color-red" });
-                    break;
-                case "Orange":
-                    args.Cell.AddClass(new string[] { "color-orange" });
-                    break;
-                case "Blue":
-                    args.Cell.AddClass(new string[] { "color-blue" });
-                    break;
-                case "Cyan":
-                    args.Cell.AddClass(new string[] { "color-cyan" });
-                    break;
-                case "Magenta":
-                    args.Cell.AddClass(new string[] { "color-magenta" });
-                    break;
-            }
-            // Debugging: Print a message indicating the color was applied
-        // Console.WriteLine($"Color {selectedcolor} applied to cell.");
-        }
-
-        if (args.Column.Field == nameof(ComputerModel.TagFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedTagcolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.ImagePaths))
-        {
-            ApplyCellStyle(args.Data.SelectedImagecolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.ComputerNameFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedComputerNamecolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.QtyFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedQtycolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.PinFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedPincolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.HardDriveFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedHardDrivecolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.MemoryFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedMemorycolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.PlayerFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedPlayercolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.NetworkFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedNetworkcolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.SASRaidFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedSASRaidcolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.BarCodesFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedBarCodescolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.StatusFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedStatuscolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.VideoFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedVideocolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.FiberFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedFibercolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.IEEEFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedIEEEcolor);
-        }
-        else if (args.Column.Field == nameof(ComputerModel.MritsFirstPart))
-        {
-            ApplyCellStyle(args.Data.SelectedMritscolor);
-        }
+      ApplyCellStyle(args.Data.SelectedPincolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.HardDriveFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedHardDrivecolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.MemoryFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedMemorycolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.PlayerFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedPlayercolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.NetworkFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedNetworkcolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.SASRaidFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedSASRaidcolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.BarCodesFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedBarCodescolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.StatusFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedStatuscolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.VideoFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedVideocolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.FiberFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedFibercolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.IEEEFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedIEEEcolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.MritsFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedMritscolor);
+    }
+    else if (args.Column.Field == nameof(ComputerModel.SCSIFirstPart))
+    {
+      ApplyCellStyle(args.Data.SelectedSCSIcolor);
+    }
     }
 
     public void CustomizeRow(RowDataBoundEventArgs<ComputerModel> args)
@@ -1209,7 +1221,7 @@ public async Task ActionBeginHandler(ActionEventArgs<ComputerModel> args)
 
 <style>
     #wrapper1 {
-        overflow-x: scroll;
+        overflow-x: hidden;
         overflow-y: hidden;
         height: 20px;
     }
