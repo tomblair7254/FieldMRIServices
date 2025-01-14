@@ -32,9 +32,6 @@
     </div>
 
     <div class="flex flex-col justify-center m-0 py-12">
-        <div id="wrapper1">
-            <div id="div1"></div>
-        </div>
 
         <SfGrid @ref="SfComputerGrid" ID="SfComputerGrid" DataSource="computerData" AllowTextWrap="true" AllowPaging="true" AllowExcelExport="true" AllowPdfExport="true" EnableStickyHeader ="true" AllowFreezeLineMoving="true" AllowSorting="true" AllowFiltering="false" GridLines="GridLine.Both" AllowResizing="true"  AllowMultiSorting="true" Toolbar="@toolbar">
             <GridSearchSettings IgnoreCase="true"></GridSearchSettings>
@@ -1221,7 +1218,7 @@ public async Task ActionBeginHandler(ActionEventArgs<ComputerModel> args)
 
 <style>
     #wrapper1 {
-    /*     overflow-x: hidden; */
+    overflow-x: scroll;
         overflow-y: hidden;
         height: 20px;
     }
