@@ -98,7 +98,7 @@ namespace FieldMRIServices.Model
     }
 
     public string ComputerName { get; set; } = ",none,cell";
-    public string InventoryNumber { get; set; } = ",none,cell";
+    public string InventoryNumber { get; set; }
     public string Location { get; set; } = ",none,cell";
     public string Serial { get; set; } = ",none,cell";
     public string HardDrive { get; set; } = ",none,cell";
