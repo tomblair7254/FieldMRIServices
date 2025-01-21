@@ -26,6 +26,7 @@
     public string Modisk { get; set; }
     public string SASRaid { get; set; }
     public string Mrits { get; set; }
+    public string Monitor { get; set; }
 
   }
 }

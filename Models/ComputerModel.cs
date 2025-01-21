@@ -117,6 +117,7 @@ namespace FieldMRIServices.Model
     public string Modisk { get; set; } = ",none,cell";
     public string SASRaid { get; set; } = ",none,cell";
     public string Mrits { get; set; } = ",none,cell";
+    public string Monitor { get; set; } = ",none,cell";
 
     // New properties for selected color and scope
     public string? SelectedTagScope { get; set; } = "none"; // Default value
@@ -142,6 +143,7 @@ namespace FieldMRIServices.Model
     public string? SelectedModiskcolor { get; set; } = "none";
     public string? SelectedSASRaidcolor { get; set; } = "none";
     public string? SelectedMritscolor { get; set; } = "none";
+    public string? SelectedMonitorcolor { get; set; } = "none";
 
     // Tag property with backing field and parsing logic
     public string? Tag
@@ -255,6 +257,7 @@ namespace FieldMRIServices.Model
       var modisk = Modisk;
       var sasRaid = SASRaid;
       var mrits = Mrits;
+      var monitor = Monitor;
 
       UpdateProperty(ref computerName, SelectedComputerNamecolor ?? "none", "cell");
       UpdateProperty(ref location, SelectedLocationcolor ?? "none", "cell");
@@ -275,6 +278,7 @@ namespace FieldMRIServices.Model
       UpdateProperty(ref modisk, SelectedModiskcolor ?? "none", "cell");
       UpdateProperty(ref sasRaid, SelectedSASRaidcolor ?? "none", "cell");
       UpdateProperty(ref mrits, SelectedMritscolor ?? "none", "cell");
+      UpdateProperty(ref monitor, SelectedMonitorcolor ?? "none", "cell");
 
       ComputerName = computerName;
       InventoryNumber = inventorynumber;
@@ -296,6 +300,7 @@ namespace FieldMRIServices.Model
       Modisk = modisk;
       SASRaid = sasRaid;
       Mrits = mrits;
+      Monitor = monitor;
     }
 
     // Computed properties for each field
@@ -350,6 +355,25 @@ namespace FieldMRIServices.Model
         }
       }
     }
+
+    public string MonitorFirstPart
+    {
+      get => Monitor?.Split(',')[0];
+      set
+      {
+        if (Monitor != null)
+        {
+          var parts = Monitor.Split(',');
+          parts[0] = value;
+          Monitor = string.Join(",", parts);
+        }
+        else
+        {
+          Monitor = value;
+        }
+      }
+    }
+
     public string LocationFirstPart
     {
       get => Location?.Split(separator: ',')[0];
