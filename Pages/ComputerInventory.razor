@@ -282,22 +282,7 @@
           </EditTemplate>
         </GridColumn>
 
-        @*                 <GridColumn HeaderText="Monitor" Field="@nameof(ComputerModel.SelectedMonitorcolor)" Width="150px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.TagFirstPart"></SfTextBox> 
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag color" DataSource="@color" @bind-Value="computer.SelectedTagcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Tag scope" DataSource="@scope" @bind-Value="computer.SelectedTagScope">
-                                    <DropDownListFieldSettings Value="scope" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-    </GridColumn> *@
+       
 
 
         <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
@@ -378,20 +363,6 @@
               <div class="flex flex-col space-y-4 flex-wrap">
                 <SfTextBox TValue="string" @bind-Value="computer.HardDriveFirstPart"></SfTextBox>
                 <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedHardDrivecolor">
-                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                </SfDropDownList>
-              </div>
-            }
-          </EditTemplate>
-        </GridColumn>
-
-        <GridColumn HeaderText="Monitor" Field="@nameof(ComputerModel.MonitorFirstPart)" Width="120px">
-          <EditTemplate Context="context">
-            @if (context is ComputerModel computer)
-            {
-              <div class="flex flex-col space-y-4 flex-wrap">
-                <SfTextBox TValue="string" @bind-Value="computer.MonitorFirstPart"></SfTextBox>
-                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMonitorcolor">
                   <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
               </div>
