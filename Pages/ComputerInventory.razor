@@ -64,17 +64,17 @@
             <GridPageSettings PageSize="10"></GridPageSettings>
 
             <GridColumns>
-                <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(ComputerModel.Id)" Width="70px" AllowFiltering="false">
+                <GridColumn HeaderText="#" AllowAdding="false" IsPrimaryKey="true" Field="@nameof(ComputerModel.Id)" Width="70px" AllowFiltering="false">
                 </GridColumn>
-                <GridColumn HeaderText="#" Field="@nameof(ComputerModel.InventoryNumber)" SortComparer="new InventoryNumberComparer()" Width="50px">
-                 @*   <EditTemplate Context="context">
+        <GridColumn Visible="false" Field="@nameof(ComputerModel.InventoryNumber)" SortComparer="new InventoryNumberComparer()" Width="50px">
+                 @*  <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
-             {
+              {
               <div class="flex flex-col space-y-4 flex-wrap">
                 <SfTextBox TValue="string" @bind-Value="computer.InventoryNumber"></SfTextBox>
               </div>
             } 
-          </EditTemplate>*@
+          </EditTemplate> *@
         </GridColumn>
         <GridColumn Field="@nameof(ComputerModel.ImagePaths)" HeaderText="IMAGE" Width="230px" AllowFiltering="false" AllowSearching="false">
           <Template>
