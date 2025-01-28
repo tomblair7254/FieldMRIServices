@@ -118,6 +118,8 @@ namespace FieldMRIServices.Model
         public string SASRaid { get; set; } = ",none,cell";
         public string Processors { get; set; } = ",none,cell";
         public string Monitor { get; set; } = ",none,cell";
+        public string Windows { get; set; } = ",none,cell";
+
 
         // New properties for selected color and scope
         public string? SelectedTagScope { get; set; } = "none"; // Default value
@@ -144,6 +146,8 @@ namespace FieldMRIServices.Model
         public string? SelectedSASRaidcolor { get; set; } = "none";
         public string? SelectedProcessorscolor { get; set; } = "none";
         public string? SelectedMonitorcolor { get; set; } = "none";
+        public string? SelectedWindowsrcolor { get; set; } = "none";
+
 
         // Tag property with backing field and parsing logic
         public string? Tag
@@ -258,6 +262,7 @@ namespace FieldMRIServices.Model
             var sasRaid = SASRaid;
             var processors = Processors;
             var monitor = Monitor;
+            var windows = Windows;
 
             UpdateProperty(ref computerName, SelectedComputerNamecolor ?? "none", "cell");
             UpdateProperty(ref location, SelectedLocationcolor ?? "none", "cell");
@@ -279,6 +284,8 @@ namespace FieldMRIServices.Model
             UpdateProperty(ref sasRaid, SelectedSASRaidcolor ?? "none", "cell");
             UpdateProperty(ref processors, SelectedProcessorscolor ?? "none", "cell");
             UpdateProperty(ref monitor, SelectedMonitorcolor ?? "none", "cell");
+            UpdateProperty(ref windows, SelectedWindowsrcolor ?? "none", "cell");
+
 
             ComputerName = computerName;
             InventoryNumber = inventorynumber;
@@ -301,6 +308,7 @@ namespace FieldMRIServices.Model
             SASRaid = sasRaid;
             Processors = processors;
             Monitor = monitor;
+            Windows = windows;
         }
 
         // Computed properties for each field
@@ -663,6 +671,25 @@ namespace FieldMRIServices.Model
                 }
             }
         }
+
+        public string WindowsFirstPart
+        {
+            get => Windows?.Split(',')[0];
+            set
+            {
+                if (Windows != null)
+                {
+                    var parts = Windows.Split(',');
+                    parts[0] = value;
+                    Windows = string.Join(",", parts);
+                }
+                else
+                {
+                    Windows = value;
+                }
+            }
+        }
+
 
         // Method to parse all properties and set the corresponding color properties
         public void ParseProperties()

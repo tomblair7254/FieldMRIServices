@@ -439,20 +439,20 @@
           </EditTemplate>
         </GridColumn>
 
-        @*                 <GridColumn HeaderText="Bar Codes" Field="@nameof(ComputerModel.BarCodesFirstPart)" Width="120px">
+                        <GridColumn HeaderText="Windows" Field="@nameof(ComputerModel.WindowsFirstPart)" Width="120px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.BarCodesFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedBarCodescolor">
+                                <SfTextBox TValue="string" @bind-Value="computer.WindowsFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedWindowsrcolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
                                 </SfDropDownList>
                             </div>
                         }
                     </EditTemplate>
                 </GridColumn>
- *@
+
         <GridColumn Field="@nameof(ComputerModel.StatusFirstPart)" AllowSearching="false" HeaderText="Status / Notes" Width="500">
 
           <Template>
@@ -824,6 +824,10 @@
     {
       ApplyCellStyle(args.Data.SelectedSCSIcolor);
     }
+        else if (args.Column.Field == nameof(ComputerModel.SelectedWindowsrcolor))
+        {
+            ApplyCellStyle(args.Data.SelectedWindowsrcolor);
+        }
     }
 
     public void CustomizeRow(RowDataBoundEventArgs<ComputerModel> args)
