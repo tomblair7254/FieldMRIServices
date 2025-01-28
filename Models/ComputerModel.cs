@@ -119,7 +119,9 @@ namespace FieldMRIServices.Model
         public string Processors { get; set; } = ",none,cell";
         public string Monitor { get; set; } = ",none,cell";
         public string Windows { get; set; } = ",none,cell";
-
+        public string Software { get; set; } = ",none,cell";
+        public string Version { get; set; }
+        public string Usb { get; set; }
 
         // New properties for selected color and scope
         public string? SelectedTagScope { get; set; } = "none"; // Default value
@@ -147,6 +149,10 @@ namespace FieldMRIServices.Model
         public string? SelectedProcessorscolor { get; set; } = "none";
         public string? SelectedMonitorcolor { get; set; } = "none";
         public string? SelectedWindowsrcolor { get; set; } = "none";
+        public string? SelectedSoftwarecolor { get; set; } = "none";
+        public string? SelectedVersioncolor { get; set; } = "none";
+        public string? SelectedUsbcolor { get; set; } = "none";
+
 
 
         // Tag property with backing field and parsing logic
@@ -263,7 +269,9 @@ namespace FieldMRIServices.Model
             var processors = Processors;
             var monitor = Monitor;
             var windows = Windows;
-
+            var software = Software;
+            var version = Version;
+            var usb = Usb;
             UpdateProperty(ref computerName, SelectedComputerNamecolor ?? "none", "cell");
             UpdateProperty(ref location, SelectedLocationcolor ?? "none", "cell");
             UpdateProperty(ref serial, SelectedSerialcolor ?? "none", "cell");
@@ -285,6 +293,10 @@ namespace FieldMRIServices.Model
             UpdateProperty(ref processors, SelectedProcessorscolor ?? "none", "cell");
             UpdateProperty(ref monitor, SelectedMonitorcolor ?? "none", "cell");
             UpdateProperty(ref windows, SelectedWindowsrcolor ?? "none", "cell");
+            UpdateProperty(ref software, SelectedSoftwarecolor ?? "none", "cell");
+            UpdateProperty(ref software, SelectedVersioncolor ?? "none", "cell");
+            UpdateProperty(ref software, SelectedUsbcolor ?? "none", "cell");
+
 
 
             ComputerName = computerName;
@@ -309,6 +321,9 @@ namespace FieldMRIServices.Model
             Processors = processors;
             Monitor = monitor;
             Windows = windows;
+            Software = software;
+            Version = version;
+            Usb = usb;
         }
 
         // Computed properties for each field
@@ -690,6 +705,57 @@ namespace FieldMRIServices.Model
             }
         }
 
+        public string VersionFirstPart
+        {
+            get => Software?.Split(',')[0];
+            set
+            {
+                if (Software != null)
+                {
+                    var parts = Software.Split(',');
+                    parts[0] = value;
+                    Software = string.Join(",", parts);
+                }
+                else
+                {
+                    Software = value;
+                }
+            }
+        }
+        public string SoftwareFirstPart
+        {
+            get => Version?.Split(',')[0];
+            set
+            {
+                if (Version != null)
+                {
+                    var parts = Version.Split(',');
+                    parts[0] = value;
+                    Version = string.Join(",", parts);
+                }
+                else
+                {
+                    Version = value;
+                }
+            }
+        }
+        public string UsbFirstPart
+        {
+            get => Usb?.Split(',')[0];
+            set
+            {
+                if (Usb != null)
+                {
+                    var parts = Usb.Split(',');
+                    parts[0] = value;
+                    Usb = string.Join(",", parts);
+                }
+                else
+                {
+                    Usb = value;
+                }
+            }
+        }
 
         // Method to parse all properties and set the corresponding color properties
         public void ParseProperties()
@@ -716,8 +782,11 @@ namespace FieldMRIServices.Model
              (IEEE, color => SelectedIEEEcolor = color),
              (Modisk, color => SelectedModiskcolor = color),
              (SASRaid, color => SelectedSASRaidcolor = color),
-                          (Processors, color => SelectedProcessorscolor = color)
-
+              (Processors, color => SelectedProcessorscolor = color),
+                 (Windows, color => SelectedProcessorscolor = color),
+                  (Software, color => SelectedSoftwarecolor = color),
+              (Version, color => SelectedVersioncolor = color),
+              (Usb, color => SelectedUsbcolor = color)
             };
 
             foreach (var (property, setColor) in properties)
