@@ -153,7 +153,6 @@
                 </SfDropDownList>
               </div>
             }
-
           </EditTemplate>
         </GridColumn>
 
@@ -235,21 +234,7 @@
           </EditTemplate>
         </GridColumn>
 
-        <GridColumn HeaderText="FMS" Field="@nameof(ComputerModel.MritsFirstPart)" Width="250px">
-          <EditTemplate Context ="context">
-            @if (context is ComputerModel computer)
-            {
-              <div class="flex-column flex-col space-y-4 flex-wrap">
-                <SfTextBox Tvalue="string" @bind-Value="computer.MritsFirstPart"></SfTextBox>
-                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMritscolor">
-                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                </SfDropDownList>
-              </div>
-            }
-
-          </EditTemplate>
-
-        </GridColumn>
+    
 
         <GridColumn HeaderText="Qty" Field="@nameof(ComputerModel.QtyFirstPart)" Width="100px">
           <EditTemplate Context="context">
@@ -281,9 +266,6 @@
             }
           </EditTemplate>
         </GridColumn>
-
-       
-
 
         <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
           <EditTemplate Context="context">
@@ -341,6 +323,22 @@
             }
           </EditTemplate>
         </GridColumn>
+
+                <GridColumn HeaderText="FMS" Field="@nameof(ComputerModel.ProcessorsFirstPart)" Width="250px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex-column flex-col space-y-4 flex-wrap">
+                                <SfTextBox Tvalue="string" @bind-Value="computer.ProcessorsFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedProcessorscolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+
+                    </EditTemplate>
+
+                </GridColumn>
 
         <GridColumn HeaderText="DVD" Field="@nameof(ComputerModel.PlayerFirstPart)" Width="120px">
           <EditTemplate Context="context">
@@ -818,10 +816,10 @@
     {
       ApplyCellStyle(args.Data.SelectedIEEEcolor);
     }
-    else if (args.Column.Field == nameof(ComputerModel.MritsFirstPart))
-    {
-      ApplyCellStyle(args.Data.SelectedMritscolor);
-    }
+        else if (args.Column.Field == nameof(ComputerModel.ProcessorsFirstPart))
+        {
+            ApplyCellStyle(args.Data.SelectedProcessorscolor);
+        }
     else if (args.Column.Field == nameof(ComputerModel.SCSIFirstPart))
     {
       ApplyCellStyle(args.Data.SelectedSCSIcolor);
