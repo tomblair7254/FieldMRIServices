@@ -120,8 +120,10 @@ namespace FieldMRIServices.Model
         public string Monitor { get; set; } = ",none,cell";
         public string Windows { get; set; } = ",none,cell";
         public string Software { get; set; } = ",none,cell";
-        public string Version { get; set; }
-        public string Usb { get; set; }
+        public string Version { get; set; } = ",none,cell";
+        public string Usb { get; set; } = ",none,cell";
+        public string Comm { get; set; } = ",none,cell";
+        public string FMS { get; set; } = ",none,cell";
 
         // New properties for selected color and scope
         public string? SelectedTagScope { get; set; } = "none"; // Default value
@@ -152,8 +154,8 @@ namespace FieldMRIServices.Model
         public string? SelectedSoftwarecolor { get; set; } = "none";
         public string? SelectedVersioncolor { get; set; } = "none";
         public string? SelectedUsbcolor { get; set; } = "none";
-
-
+        public string? SelectedCommcolor { get; set; } = "none";
+        public string? SelectedFMScolor { get; set; } = "none";
 
         // Tag property with backing field and parsing logic
         public string? Tag
@@ -272,6 +274,9 @@ namespace FieldMRIServices.Model
             var software = Software;
             var version = Version;
             var usb = Usb;
+            var comm = Comm;
+            var fms = FMS;
+
             UpdateProperty(ref computerName, SelectedComputerNamecolor ?? "none", "cell");
             UpdateProperty(ref location, SelectedLocationcolor ?? "none", "cell");
             UpdateProperty(ref serial, SelectedSerialcolor ?? "none", "cell");
@@ -294,8 +299,10 @@ namespace FieldMRIServices.Model
             UpdateProperty(ref monitor, SelectedMonitorcolor ?? "none", "cell");
             UpdateProperty(ref windows, SelectedWindowsrcolor ?? "none", "cell");
             UpdateProperty(ref software, SelectedSoftwarecolor ?? "none", "cell");
-            UpdateProperty(ref software, SelectedVersioncolor ?? "none", "cell");
-            UpdateProperty(ref software, SelectedUsbcolor ?? "none", "cell");
+            UpdateProperty(ref version, SelectedVersioncolor ?? "none", "cell");
+            UpdateProperty(ref usb, SelectedUsbcolor ?? "none", "cell");
+            UpdateProperty(ref comm, SelectedCommcolor ?? "none", "cell");
+            UpdateProperty(ref comm, SelectedFMScolor ?? "none", "cell");
 
 
 
@@ -324,6 +331,8 @@ namespace FieldMRIServices.Model
             Software = software;
             Version = version;
             Usb = usb;
+            Comm = comm;
+            FMS = fms;
         }
 
         // Computed properties for each field
@@ -613,8 +622,6 @@ namespace FieldMRIServices.Model
             }
         }
 
-
-
         public string FiberFirstPart
         {
             get => Fiber?.Split(',')[0];
@@ -756,6 +763,41 @@ namespace FieldMRIServices.Model
                 }
             }
         }
+        public string CommFirstPart
+        {
+            get => Comm?.Split(',')[0];
+            set
+            {
+                if (Comm != null)
+                {
+                    var parts = Comm.Split(',');
+                    parts[0] = value;
+                    Comm = string.Join(",", parts);
+                }
+                else
+                {
+                    Comm = value;
+                }
+            }
+        }
+        public string FMSFirstPart
+        {
+            get => FMS?.Split(',')[0];
+            set
+            {
+                if (FMS != null)
+                {
+                    var parts = FMS.Split(',');
+                    parts[0] = value;
+                    FMS = string.Join(",", parts);
+                }
+                else
+                {
+                    FMS = value;
+                }
+            }
+        }
+
 
         // Method to parse all properties and set the corresponding color properties
         public void ParseProperties()
@@ -786,7 +828,10 @@ namespace FieldMRIServices.Model
                  (Windows, color => SelectedProcessorscolor = color),
                   (Software, color => SelectedSoftwarecolor = color),
               (Version, color => SelectedVersioncolor = color),
-              (Usb, color => SelectedUsbcolor = color)
+              (Usb, color => SelectedUsbcolor = color),
+                 (Comm, color => SelectedCommcolor = color),
+                    (FMS, color => SelectedFMScolor = color),
+
             };
 
             foreach (var (property, setColor) in properties)

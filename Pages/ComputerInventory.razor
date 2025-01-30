@@ -219,7 +219,6 @@
           </EditTemplate>
         </GridColumn>
 
-
         <GridColumn HeaderText="Location" Field="@nameof(ComputerModel.LocationFirstPart)" Width="250px">
           <EditTemplate Context="context">
             @if (context is ComputerModel computer)
@@ -234,7 +233,19 @@
           </EditTemplate>
         </GridColumn>
 
-    
+                <GridColumn HeaderText="FMS #" Field="@nameof(ComputerModel.FMSFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.FMSFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedFMScolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
 
         <GridColumn HeaderText="Qty" Field="@nameof(ComputerModel.QtyFirstPart)" Width="100px">
           <EditTemplate Context="context">
@@ -267,7 +278,63 @@
           </EditTemplate>
         </GridColumn>
 
-        <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
+                <GridColumn HeaderText="Windows" Field="@nameof(ComputerModel.WindowsFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.WindowsFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedWindowsrcolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Medical Software" Field="@nameof(ComputerModel.SoftwareFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.SoftwareFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSoftwarecolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Medical Version" Field="@nameof(ComputerModel.VersionFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.VersionFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedVersioncolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Hard Drive" Field="@nameof(ComputerModel.HardDriveFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.HardDriveFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedHardDrivecolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Video" Field="@nameof(ComputerModel.VideoFirstPart)" Width="120px">
           <EditTemplate Context="context">
             @if (context is ComputerModel computer)
             {
@@ -281,50 +348,77 @@
           </EditTemplate>
         </GridColumn>
 
-        <GridColumn HeaderText="Monitor" Field="@nameof(ComputerModel.MonitorFirstPart)" Width="120px">
-          <EditTemplate Context="context">
-            @if (context is ComputerModel computer)
-            {
-              <div class="flex flex-col space-y-4 flex-wrap">
-                <SfTextBox TValue="string" @bind-Value="computer.MonitorFirstPart"></SfTextBox>
-                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMonitorcolor">
-                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                </SfDropDownList>
-              </div>
-            }
-          </EditTemplate>
-        </GridColumn>
+                <GridColumn HeaderText="Serial Port" Field="@nameof(ComputerModel.CommFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.CommFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedCommcolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
 
+                <GridColumn HeaderText="USB" Field="@nameof(ComputerModel.UsbFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.UsbFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedUsbcolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
 
-        <GridColumn HeaderText="Network" Field="@nameof(ComputerModel.NetworkFirstPart)" Width="120px">
-          <EditTemplate Context="context">
-            @if (context is ComputerModel computer)
-            {
-              <div class="flex flex-col space-y-4 flex-wrap">
-                <SfTextBox TValue="string" @bind-Value="computer.NetworkFirstPart"></SfTextBox>
-                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedNetworkcolor">
-                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                </SfDropDownList>
-              </div>
-            }
-          </EditTemplate>
-        </GridColumn>
+                <GridColumn HeaderText="Network" Field="@nameof(ComputerModel.NetworkFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.NetworkFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedNetworkcolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
 
-        <GridColumn HeaderText="Memory" Field="@nameof(ComputerModel.MemoryFirstPart)" Width="120px">
-          <EditTemplate Context="context">
-            @if (context is ComputerModel computer)
-            {
-              <div class="flex flex-col space-y-4 flex-wrap">
-                <SfTextBox TValue="string" @bind-Value="computer.MemoryFirstPart"></SfTextBox>
-                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMemorycolor">
-                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                </SfDropDownList>
-              </div>
-            }
-          </EditTemplate>
-        </GridColumn>
+                <GridColumn HeaderText="DVD" Field="@nameof(ComputerModel.PlayerFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.PlayerFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPlayercolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
 
-                <GridColumn HeaderText="FMS" Field="@nameof(ComputerModel.ProcessorsFirstPart)" Width="250px">
+                <GridColumn HeaderText="Memory" Field="@nameof(ComputerModel.MemoryFirstPart)" Width="120px">
+                    <EditTemplate Context="context">
+                        @if (context is ComputerModel computer)
+                        {
+                            <div class="flex flex-col space-y-4 flex-wrap">
+                                <SfTextBox TValue="string" @bind-Value="computer.MemoryFirstPart"></SfTextBox>
+                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMemorycolor">
+                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        }
+                    </EditTemplate>
+                </GridColumn>
+
+                <GridColumn HeaderText="Processors" Field="@nameof(ComputerModel.ProcessorsFirstPart)" Width="150px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
                         {
@@ -335,32 +429,16 @@
                                 </SfDropDownList>
                             </div>
                         }
-
                     </EditTemplate>
-
                 </GridColumn>
 
-        <GridColumn HeaderText="DVD" Field="@nameof(ComputerModel.PlayerFirstPart)" Width="120px">
+        <GridColumn HeaderText="Monitor" Field="@nameof(ComputerModel.MonitorFirstPart)" Width="120px">
           <EditTemplate Context="context">
             @if (context is ComputerModel computer)
             {
               <div class="flex flex-col space-y-4 flex-wrap">
-                <SfTextBox TValue="string" @bind-Value="computer.PlayerFirstPart"></SfTextBox>
-                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedPlayercolor">
-                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                </SfDropDownList>
-              </div>
-            }
-          </EditTemplate>
-        </GridColumn>
-
-        <GridColumn HeaderText="Hard Drive" Field="@nameof(ComputerModel.HardDriveFirstPart)" Width="120px">
-          <EditTemplate Context="context">
-            @if (context is ComputerModel computer)
-            {
-              <div class="flex flex-col space-y-4 flex-wrap">
-                <SfTextBox TValue="string" @bind-Value="computer.HardDriveFirstPart"></SfTextBox>
-                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedHardDrivecolor">
+                <SfTextBox TValue="string" @bind-Value="computer.MonitorFirstPart"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedMonitorcolor">
                   <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
                 </SfDropDownList>
               </div>
@@ -381,7 +459,6 @@
             }
           </EditTemplate>
         </GridColumn>
-
 
         <GridColumn HeaderText="Fiber" Field="@nameof(ComputerModel.FiberFirstPart)" Width="120px">
           <EditTemplate Context="context">
@@ -425,20 +502,6 @@
           </EditTemplate>
         </GridColumn>
 
-        <GridColumn HeaderText="USB" Field="@nameof(ComputerModel.UsbFirstPart)" Width="120px">
-          <EditTemplate Context="context">
-            @if (context is ComputerModel computer)
-            {
-              <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.UsbFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedUsbcolor">
-                  <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                </SfDropDownList>
-              </div>
-            }
-          </EditTemplate>
-        </GridColumn>
-
                 <GridColumn HeaderText="SCSI" Field="@nameof(ComputerModel.SCSIFirstPart)" Width="120px">
                     <EditTemplate Context="context">
                         @if (context is ComputerModel computer)
@@ -446,49 +509,6 @@
                             <div class="flex flex-col space-y-4 flex-wrap">
                                 <SfTextBox TValue="string" @bind-Value="computer.SCSIFirstPart"></SfTextBox>
                                 <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSCSIcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-
-
-                <GridColumn HeaderText="Windows" Field="@nameof(ComputerModel.WindowsFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.WindowsFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedWindowsrcolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-
-                <GridColumn HeaderText="Medical Software" Field="@nameof(ComputerModel.SoftwareFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.SoftwareFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedSoftwarecolor">
-                                    <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </div>
-                        }
-                    </EditTemplate>
-                </GridColumn>
-
-                <GridColumn HeaderText="Medical Version" Field="@nameof(ComputerModel.VersionFirstPart)" Width="120px">
-                    <EditTemplate Context="context">
-                        @if (context is ComputerModel computer)
-                        {
-                            <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="computer.VersionFirstPart"></SfTextBox>
-                                <SfDropDownList TValue="string" TItem="string" Placeholder="Cell color" DataSource="@color" @bind-Value="computer.SelectedVersioncolor">
                                     <DropDownListFieldSettings Value="color" Text="Text"></DropDownListFieldSettings>
                                 </SfDropDownList>
                             </div>
