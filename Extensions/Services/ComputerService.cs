@@ -302,7 +302,8 @@ namespace FieldMRIServices.Extensions.Services
                 computers = await _appDbContext.Computers
                     .Where(i => (isInt && i.Id == id) ||
                                 i.ComputerName.ToLower().Contains(lowerSearchTerm) ||
-
+                                i.Windows.ToLower().Contains(lowerSearchTerm) ||
+                                i.Version.ToLower().Contains(lowerSearchTerm) ||
                                 i.Location.ToLower().Contains(lowerSearchTerm) ||
                                 i.Serial.ToLower().Contains(lowerSearchTerm) ||
                                 i.HardDrive.ToLower().Contains(lowerSearchTerm) ||
@@ -321,6 +322,8 @@ namespace FieldMRIServices.Extensions.Services
                                 i.Fiber.ToLower().Contains(lowerSearchTerm) ||
                                 i.IEEE.ToLower().Contains(lowerSearchTerm) ||
                                 i.Modisk.ToLower().Contains(lowerSearchTerm) ||
+                                 i.Windows.ToLower().Contains(lowerSearchTerm) ||
+                                  i.Version.ToLower().Contains(lowerSearchTerm) ||
                                 i.SASRaid.ToLower().Contains(lowerSearchTerm))
                     .ToListAsync();
 
@@ -345,6 +348,8 @@ namespace FieldMRIServices.Extensions.Services
                                 i.Fiber.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
                                 i.IEEE.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
                                 i.Modisk.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
+                                 i.Windows.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
+                                i.Version.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
                                 i.SASRaid.Split(',')[0].ToLower().Contains(lowerSearchTerm))
                     .ToList();
             }
