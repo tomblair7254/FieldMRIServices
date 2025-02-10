@@ -266,7 +266,7 @@ namespace FieldMRIServices.Model
             var pin = Pin;
             var fiber = Fiber;
             var ieee = IEEE;
-            var modisk = Processors;
+            var modisk = Modisk;
             var sasRaid = SASRaid;
             var processors = Processors;
             var monitor = Monitor;

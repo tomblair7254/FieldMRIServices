@@ -29,6 +29,7 @@
         public string Monitor { get; set; }
         public string Windows { get; set; }
         public string Version { get; set; }
+        public string Processors { get; set; }
     }
 }
 
