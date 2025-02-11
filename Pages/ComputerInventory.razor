@@ -163,7 +163,7 @@
               string fullText = (context as ComputerModel).PinFirstPart;
 
               // Match the date pattern (assuming date is in yyyy-MM-dd format)
-              var datePattern = @"(\d{1,2}/\d{1,2}/\d{2}|SN|MODEL|ITEM #)";
+              var datePattern = @"(\d{1,2}/\d{1,2}/\d{2}|SN|PN|MODEL|ITEM #)";
               var matches = Regex.Matches(fullText, datePattern);
 
 
