@@ -731,18 +731,18 @@ namespace FieldMRIServices.Model
         }
         public string SoftwareFirstPart
         {
-            get => Version?.Split(',')[0];
+            get => Software?.Split(',')[0];
             set
             {
-                if (Version != null)
+                if (Software != null)
                 {
-                    var parts = Version.Split(',');
+                    var parts = Software.Split(',');
                     parts[0] = value;
-                    Version = string.Join(",", parts);
+                    Software = string.Join(",", parts);
                 }
                 else
                 {
-                    Version = value;
+                    Software = value;
                 }
             }
         }

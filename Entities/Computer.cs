@@ -30,6 +30,7 @@
         public string Windows { get; set; }
         public string Version { get; set; }
         public string Processors { get; set; }
+        public string Software { get; set; }
     }
 }
 
