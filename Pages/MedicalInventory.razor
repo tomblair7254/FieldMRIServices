@@ -52,10 +52,10 @@
 
             <GridSortSettings>
                 <GridSortColumns>
-                    @*                     <GridSortColumn Field="@nameof(InventoryModel.Id)" Direction="SortDirection.Descending"></GridSortColumn>
- *@
-                    <GridSortColumn Field="@nameof(InventoryModel.InventoryNumber)" Direction="SortDirection.Descending"></GridSortColumn>
-                </GridSortColumns> 
+                  <GridSortColumn Field="@nameof(InventoryModel.Id)" Direction="SortDirection.Descending"></GridSortColumn>
+
+@*                     <GridSortColumn Field="@nameof(InventoryModel.InventoryNumber)" Direction="SortDirection.Descending"></GridSortColumn>
+ *@                </GridSortColumns> 
             </GridSortSettings>
 
             <GridSelectionSettings Mode="Syncfusion.Blazor.Grids.SelectionMode.Both" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
@@ -66,18 +66,18 @@
 
             <GridPageSettings PageSize="10"></GridPageSettings>
             <GridColumns>
-                @*  <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="70px" AllowFiltering="false" Freeze="FreezeDirection.Left">
-                </GridColumn> *@
+                 <GridColumn AllowAdding="false" IsPrimaryKey="true" Field="@nameof(InventoryModel.Id)" Width="70px" AllowFiltering="false" Freeze="FreezeDirection.Left">
+                </GridColumn>
 
                 <GridColumn HeaderText="#" IsPrimaryKey="true" Field="@nameof(InventoryModel.InventoryNumber)" SortComparer="new InventoryNumberComparer()" Width="50px">
-                    <EditTemplate Context="context">
+                    @* <EditTemplate Context="context">
                         @if (context is InventoryModel inventory)
                         {
                             <div class="flex flex-col space-y-4 flex-wrap">
-                                <SfTextBox TValue="string" @bind-Value="inventory.InventoryNumber"></SfTextBox>
+                                <SfNumberBox TValue="number" @bind-Value="inventory.Id"></SfNumberBox>
                             </div>
                         }
-                    </EditTemplate>
+                    </EditTemplate> *@
                 </GridColumn>
 
                 <GridColumn Field="@nameof(InventoryModel.ImagePaths)" HeaderText="IMAGE" Width="230px" AllowFiltering="false" AllowSearching="false">
