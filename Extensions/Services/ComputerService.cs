@@ -322,12 +322,14 @@ namespace FieldMRIServices.Extensions.Services
                                 i.Fiber.ToLower().Contains(lowerSearchTerm) ||
                                 i.IEEE.ToLower().Contains(lowerSearchTerm) ||
                                 i.Modisk.ToLower().Contains(lowerSearchTerm) ||
-                                 i.Windows.ToLower().Contains(lowerSearchTerm) ||
-                                  i.Version.ToLower().Contains(lowerSearchTerm) ||
-                                   i.Processors.ToLower().Contains(lowerSearchTerm) ||
-                                     i.Version.ToLower().Contains(lowerSearchTerm) ||
-                                    i.Software.ToLower().Contains(lowerSearchTerm) ||
-                                i.SASRaid.ToLower().Contains(lowerSearchTerm))
+                                i.Windows.ToLower().Contains(lowerSearchTerm) ||
+                                i.Version.ToLower().Contains(lowerSearchTerm) ||
+                                i.Processors.ToLower().Contains(lowerSearchTerm) ||
+                                i.Version.ToLower().Contains(lowerSearchTerm) ||
+                                i.Software.ToLower().Contains(lowerSearchTerm) ||
+                                i.SASRaid.ToLower().Contains(lowerSearchTerm) ||
+                               i.Parallel.ToLower().Contains(lowerSearchTerm))
+                               
                     .ToListAsync();
 
                 // Filter the results to only include those where the first part of the properties matches the search term

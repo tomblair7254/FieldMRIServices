@@ -124,6 +124,7 @@ namespace FieldMRIServices.Model
         public string Usb { get; set; } = ",none,cell";
         public string Comm { get; set; } = ",none,cell";
         public string FMS { get; set; } = ",none,cell";
+        public string Parallel { get; set; } = ",none,cell";
 
         // New properties for selected color and scope
         public string? SelectedTagScope { get; set; } = "none"; // Default value
@@ -156,6 +157,7 @@ namespace FieldMRIServices.Model
         public string? SelectedUsbcolor { get; set; } = "none";
         public string? SelectedCommcolor { get; set; } = "none";
         public string? SelectedFMScolor { get; set; } = "none";
+        public string? SelectedParallelcolor { get; set; } = "none";
 
         // Tag property with backing field and parsing logic
         public string? Tag
@@ -276,6 +278,7 @@ namespace FieldMRIServices.Model
             var usb = Usb;
             var comm = Comm;
             var fms = FMS;
+            var parallel = Parallel;
 
             UpdateProperty(ref computerName, SelectedComputerNamecolor ?? "none", "cell");
             UpdateProperty(ref location, SelectedLocationcolor ?? "none", "cell");
@@ -303,7 +306,7 @@ namespace FieldMRIServices.Model
             UpdateProperty(ref usb, SelectedUsbcolor ?? "none", "cell");
             UpdateProperty(ref comm, SelectedCommcolor ?? "none", "cell");
             UpdateProperty(ref comm, SelectedFMScolor ?? "none", "cell");
-
+            UpdateProperty(ref comm, SelectedParallelcolor ?? "none", "cell");
 
 
             ComputerName = computerName;
@@ -333,6 +336,7 @@ namespace FieldMRIServices.Model
             Usb = usb;
             Comm = comm;
             FMS = fms;
+            Parallel = parallel;
         }
 
         // Computed properties for each field
@@ -798,7 +802,23 @@ namespace FieldMRIServices.Model
             }
         }
 
-
+        public string ParallelFirstPart
+        {
+            get => Parallel?.Split(',')[0];
+            set
+            {
+                if (Parallel != null)
+                {
+                    var parts = Parallel.Split(',');
+                    parts[0] = value;
+                    Parallel = string.Join(",", parts);
+                }
+                else
+                {
+                    Parallel = value;
+                }
+            }
+        }
         // Method to parse all properties and set the corresponding color properties
         public void ParseProperties()
         {
@@ -831,7 +851,7 @@ namespace FieldMRIServices.Model
               (Usb, color => SelectedUsbcolor = color),
                  (Comm, color => SelectedCommcolor = color),
                     (FMS, color => SelectedFMScolor = color),
-
+                (Parallel, color => SelectedParallelcolor = color),
             };
 
             foreach (var (property, setColor) in properties)

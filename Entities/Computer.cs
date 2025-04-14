@@ -31,6 +31,7 @@
         public string Version { get; set; }
         public string Processors { get; set; }
         public string Software { get; set; }
+        public string Parallel { get; set; }
     }
 }
 
