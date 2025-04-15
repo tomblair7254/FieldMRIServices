@@ -32,6 +32,7 @@
         public string Processors { get; set; }
         public string Software { get; set; }
         public string Parallel { get; set; }
+        public string Floppy { get; set; }
     }
 }
 
