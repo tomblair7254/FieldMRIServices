@@ -126,6 +126,7 @@ namespace FieldMRIServices.Model
         public string FMS { get; set; } = ",none,cell";
         public string Parallel { get; set; } = ",none,cell";
         public string Floppy { get; set; } = ",none,cell";
+        public string I394 { get; set; } = "none,cell";
 
         // New properties for selected color and scope
         public string? SelectedTagScope { get; set; } = "none"; // Default value
@@ -159,8 +160,8 @@ namespace FieldMRIServices.Model
         public string? SelectedCommcolor { get; set; } = "none";
         public string? SelectedFMScolor { get; set; } = "none";
         public string? SelectedParallelcolor { get; set; } = "none";
-        public string? SelectedFloppycolor { get; set; } = "none";  
-
+        public string? SelectedFloppycolor { get; set; } = "none";
+        public string? SelectedI394color { get; set; } = "none";
         // Tag property with backing field and parsing logic
         public string? Tag
         {
@@ -282,6 +283,7 @@ namespace FieldMRIServices.Model
             var fms = FMS;
             var parallel = Parallel;
             var floppy = Floppy;
+            var i394 = I394;
 
             UpdateProperty(ref computerName, SelectedComputerNamecolor ?? "none", "cell");
             UpdateProperty(ref location, SelectedLocationcolor ?? "none", "cell");
@@ -310,8 +312,8 @@ namespace FieldMRIServices.Model
             UpdateProperty(ref comm, SelectedCommcolor ?? "none", "cell");
             UpdateProperty(ref comm, SelectedFMScolor ?? "none", "cell");
             UpdateProperty(ref comm, SelectedParallelcolor ?? "none", "cell");
-            UpdateProperty(ref floppy, SelectedFloppycolor ?? "none", "cell");  
-
+            UpdateProperty(ref floppy, SelectedFloppycolor ?? "none", "cell");
+            UpdateProperty(ref floppy, SelectedI394color ?? "none", "cell");
 
             ComputerName = computerName;
             InventoryNumber = inventorynumber;
@@ -342,6 +344,7 @@ namespace FieldMRIServices.Model
             FMS = fms;
             Parallel = parallel;
             Floppy = floppy;
+            I394 = i394;
         }
 
         // Computed properties for each field
@@ -841,6 +844,25 @@ namespace FieldMRIServices.Model
                 }
             }
         }
+        public string I394FirstPart
+        {
+            get => I394?.Split(',')[0];
+            set
+            {
+                if (I394 != null)
+                {
+                    var parts = I394.Split(',');
+                    parts[0] = value;
+                    I394 = string.Join(",", parts);
+                }
+                else
+                {
+                    I394 = value;
+                }
+            }
+        }
+
+
         // Method to parse all properties and set the corresponding color properties
         public void ParseProperties()
         {
@@ -874,7 +896,8 @@ namespace FieldMRIServices.Model
                  (Comm, color => SelectedCommcolor = color),
                     (FMS, color => SelectedFMScolor = color),
                 (Parallel, color => SelectedParallelcolor = color),
-                (Floppy, color => SelectedFloppycolor = color)
+                (Floppy, color => SelectedFloppycolor = color), 
+                (I394, color => SelectedI394color = color),
             };
 
             foreach (var (property, setColor) in properties)

@@ -328,8 +328,10 @@ namespace FieldMRIServices.Extensions.Services
                                 i.Version.ToLower().Contains(lowerSearchTerm) ||
                                 i.Software.ToLower().Contains(lowerSearchTerm) ||
                                 i.SASRaid.ToLower().Contains(lowerSearchTerm) ||
-                               i.Parallel.ToLower().Contains(lowerSearchTerm))
-                               
+                                i.Parallel.ToLower().Contains(lowerSearchTerm) ||
+                                i.Usb.ToLower().Contains(lowerSearchTerm))
+
+
                     .ToListAsync();
 
                 // Filter the results to only include those where the first part of the properties matches the search term
@@ -353,11 +355,12 @@ namespace FieldMRIServices.Extensions.Services
                                 i.Fiber.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
                                 i.IEEE.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
                                 i.Modisk.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
-                                 i.Windows.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
+                                i.Windows.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
                                 i.Version.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
-                                  i.Processors.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
-                                  i.Software.ToLower().Contains(lowerSearchTerm) ||
-                                i.SASRaid.Split(',')[0].ToLower().Contains(lowerSearchTerm))
+                                i.Processors.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
+                                i.Software.ToLower().Contains(lowerSearchTerm) ||
+                                i.SASRaid.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
+                                i.Usb.Split(',')[0].ToLower().Contains(lowerSearchTerm))
                     .ToList();
             }
 

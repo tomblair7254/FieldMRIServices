@@ -33,6 +33,8 @@
         public string Software { get; set; }
         public string Parallel { get; set; }
         public string Floppy { get; set; }
+        public string Usb { get; set; }
+        public string I394 { get; set; }
     }
 }
 
