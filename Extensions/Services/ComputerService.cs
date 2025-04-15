@@ -329,7 +329,8 @@ namespace FieldMRIServices.Extensions.Services
                                 i.Software.ToLower().Contains(lowerSearchTerm) ||
                                 i.SASRaid.ToLower().Contains(lowerSearchTerm) ||
                                 i.Parallel.ToLower().Contains(lowerSearchTerm) ||
-                                i.Usb.ToLower().Contains(lowerSearchTerm))
+                                i.Usb.ToLower().Contains(lowerSearchTerm) ||
+                                i.I394.ToLower().Contains(lowerSearchTerm))
 
 
                     .ToListAsync();
@@ -360,7 +361,8 @@ namespace FieldMRIServices.Extensions.Services
                                 i.Processors.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
                                 i.Software.ToLower().Contains(lowerSearchTerm) ||
                                 i.SASRaid.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
-                                i.Usb.Split(',')[0].ToLower().Contains(lowerSearchTerm))
+                                i.Usb.Split(',')[0].ToLower().Contains(lowerSearchTerm) ||
+                                i.I394.Split(',')[0].ToLower().Contains(lowerSearchTerm))
                     .ToList();
             }
 
