@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - fieldmriservices
+name: Build and deploy ASP.Net Core app to Azure Web App - FieldMRIServices
 
 on:
   push:
@@ -51,15 +51,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_17D0ED6F21ED4543A945DF3709ED1438 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1B803A6EB8F9437B9FBE5E0AA588DC99 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F707D98DB6884D44849CCE6F18059321 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_26EA12A0080142FB82B0E6B888F3E94F }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8946ABC6E646480D8AF849BEE90939D2 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A012446DAB1E44BCA273A6805A6CF7ED }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'fieldmriservices'
+          app-name: 'FieldMRIServices'
           slot-name: 'Production'
           package: .
           
